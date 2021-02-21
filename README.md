@@ -12,7 +12,13 @@
 
 ## Table of Contents:
 - [Hello, world](#hello,-world)
+    -[Start method](#start-method)
+    -[Update method](#update-method)
 - [Number wizard](#number-wizard)
+    - [Debug.Log](#debug.log)
+    - [Variable differences between Java and C#](#variable-differences-between-java-and-c#)
+    - [Player input](#player-input)
+    - [Code](#code)
 
 ## Hello, world
 
@@ -107,5 +113,64 @@ To stop the current play session, we just have to click the **play button** agai
 
 The console is an awesome tool for debugging.
 
+### Start method
+
+The start method is invoked when the game is initialized (when the play button is hit).
+
+It's an initialization method. It only executes **once**.
+
+### Update method
+
+This method is called **once per frame**.
+
+So, for faster computers, this method will be called quicker.
+
 ## Number wizard
 
+In this section, we'll create a console based C# game that guesses which number the user is thinking about.
+
+### Debug.Log
+
+This method of printing out is from the **UnityEngine** namespace.
+
+It is more flexible and better than print. It will be later explained.
+
+### Variable differences between Java and C#
+
+To declare a boolean, we use the keyword **bool**.
+
+A string in C# is a primitive type, not a custom class. Thus, we use the keyword **string** (lowercase).
+
+### Player input
+
+We can read which key the player's pushed in a given situation.
+
+The official documentation for Unity's API on that can be found [here](https://docs.unity3d.com/ScriptReference/Input.html).
+
+To read an input, we need to use the **Input** class from the **UnityEngine** namespace.
+
+Inside this class we have the overloaded method **GetKeyDown()** that takes an argument of type **KeyCode**.
+
+This method reads which key an user pressed **down** in their keyboard.
+
+Example to read the **up arrow**:
+```
+if (Input.GetKeyDown(KeyCode.UpArrow))
+{
+    Debug.Log("Up Arrow key was pressed.");
+}
+```
+
+This has to go inside the [Update()](#update-method) method in the **NumberWizard** class, because this method constantly reads input from the user.
+
+The message "Up Arrow key was pressed." will only be displayed **if we push the key after we click inside the Game tab**:
+
+![Up Key Pushed](readme-images/up-key-pressed.png)
+
+Here's a [list](https://docs.unity3d.com/ScriptReference/KeyCode.html) from the official documentation of all key codes that are available for reading.
+
+**Note**: normally, we put the curly bracket starting a code block down bellow a statement in C#, like the example above.
+
+### Code
+
+We create the script the same way we created our [hello, world](#hello,-world) project and C# script.
