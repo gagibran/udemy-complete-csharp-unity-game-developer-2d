@@ -22,6 +22,7 @@
     - [Variable differences between Java and C#](#variable-differences-between-java-and-c#)
     - [Player input](#player-input)
     - [Namespaces](#namespaces)
+    - [Solution](#solution)
 
 ## Hello, world
 
@@ -223,6 +224,7 @@ public class NumberWizard : MonoBehaviour
         Debug.Log("Press the up arrow if it's higher.");
         Debug.Log("Press the down arrow if it's higher.");
         Debug.Log("Press enter if the number is correct.");
+        max += 1; // Now that the max is 1001, we can press the up arrow until it hits 1000, if our number is 1000.
     }
 
     // Update is called once per frame
@@ -233,14 +235,14 @@ public class NumberWizard : MonoBehaviour
             Debug.Log("Up Arrow key was pressed.");
             min = guess;
             guess = (max + min) / 2;
-            Debug.Log("Your number is " + guess + "?");
+            Debug.Log("Is your number " + guess + "?");
         }
         else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             Debug.Log("Down Arrow key was pressed.");
             max = guess;
             guess = (max + min) / 2;
-            Debug.Log("Your number is " + guess + "?");
+            Debug.Log("Is your number " + guess + "?");
 
         }
         else if (Input.GetKeyDown(KeyCode.Return))
