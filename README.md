@@ -12,20 +12,35 @@
 
 ## Table of Contents:
 - [Hello, world](#hello,-world)
-    -[Start method](#start-method)
-    -[Update method](#update-method)
+    - [Requirements for this course](#requirements-for-this-course)
+    - [C# naming conventions](#c#-naming-conventions)
+    - [First C# program](#first-c#-program)
+    - [Start method](#start-method)
+    - [Update method](#update-method)
 - [Number wizard](#number-wizard)
     - [Debug.Log](#debug.log)
     - [Variable differences between Java and C#](#variable-differences-between-java-and-c#)
     - [Player input](#player-input)
-    - [Code](#code)
+    - [Namespaces](#namespaces)
 
 ## Hello, world
 
-**Requirements for this course**:
+### Requirements for this course
 1. Unity Hub;
 2. A version of Unity. I'm using **Unity 2020.2.5f1 (64-bit)**;
 3. Visual Studio. I'm using **Visual Stdio 2019**.
+
+### C# naming conventions
+
+Most of the naming is in PascalCase.
+
+[Here](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/naming-guidelines) is Microsoft's official naming convention for the C# language.
+
+[Here](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) is Microsoft's official coding convention.
+
+[Here](https://github.com/ktaranov/naming-convention/blob/master/C%23%20Coding%20Standards%20and%20Naming%20Conventions.md) is a repository from [Konstantin Taranov](https://github.com/ktaranov) that condenses all of the conventions.
+
+### First C# program
 
 We can start by creating a new project in Unity Hub. When it's done creating, the folder structure will look like this for a project named **HelloWorld**:
 
@@ -119,6 +134,8 @@ The start method is invoked when the game is initialized (when the play button i
 
 It's an initialization method. It only executes **once**.
 
+But, we still have to declare **fields** to the class so that the [Update method](#update-method) can access them.
+
 ### Update method
 
 This method is called **once per frame**.
@@ -171,6 +188,70 @@ Here's a [list](https://docs.unity3d.com/ScriptReference/KeyCode.html) from the 
 
 **Note**: normally, we put the curly bracket starting a code block down bellow a statement in C#, like the example above.
 
-### Code
+### Namespaces
 
-We create the script the same way we created our [hello, world](#hello,-world) project and C# script.
+In C# we have an outer scope called **namespace**.
+
+They're an extra container that encapsulate classes, like packages.
+
+For example, we're using the **UnityEngine** namespace, that contains all classes, methods from the Unity framework.
+
+We use the keyword **using** at the beginning of our code to import a particular namespace to our project.
+
+### Solution
+
+We create a project just like we did with the [hello, world](#hello,-world) challenge, create the C# file in **Assets**, and add the following code to it:
+```
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class NumberWizard : MonoBehaviour
+{
+    int max = 1000;
+    int min = 1;
+    int guess = 500;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        Debug.Log("Welcome to Number Wizard!");
+        Debug.Log("Think of a number.");
+        Debug.Log("The highest number is: " + max);
+        Debug.Log("The lowest number is: " + min);
+        Debug.Log("Tell me if your number is higher or lower than " + guess);
+        Debug.Log("Press the up arrow if it's higher.");
+        Debug.Log("Press the down arrow if it's higher.");
+        Debug.Log("Press enter if the number is correct.");
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            Debug.Log("Up Arrow key was pressed.");
+            min = guess;
+            guess = (max + min) / 2;
+            Debug.Log("Your number is " + guess + "?");
+        }
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            Debug.Log("Down Arrow key was pressed.");
+            max = guess;
+            guess = (max + min) / 2;
+            Debug.Log("Your number is " + guess + "?");
+
+        }
+        else if (Input.GetKeyDown(KeyCode.Return))
+        {
+            Debug.Log("Enter key was pressed.");
+            Debug.Log("Your number is " + guess);
+        }
+    }
+}
+```
+
+Trying to guess the number 643:
+
+![Guessed Number](readme-images/guessed-number.png)
