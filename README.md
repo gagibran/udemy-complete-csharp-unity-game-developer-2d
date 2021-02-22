@@ -23,6 +23,8 @@
     - [Player input](#player-input)
     - [Namespaces](#namespaces)
     - [Solution](#solution)
+- [Text101](#text101)
+
 
 ## Hello, world
 
@@ -209,13 +211,21 @@ using UnityEngine;
 
 public class NumberWizard : MonoBehaviour
 {
-    int max = 1000;
-    int min = 1;
-    int guess = 500;
+    int max;
+    int min;
+    int guess;
 
     // Start is called before the first frame update
     void Start()
     {
+        StartGame();
+    }
+
+    void StartGame()
+    {
+        max = 1000;
+        min = 1;
+        guess = 500;
         Debug.Log("Welcome to Number Wizard!");
         Debug.Log("Think of a number.");
         Debug.Log("The highest number is: " + max);
@@ -232,24 +242,26 @@ public class NumberWizard : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            Debug.Log("Up Arrow key was pressed.");
             min = guess;
-            guess = (max + min) / 2;
-            Debug.Log("Is your number " + guess + "?");
+            NextGuess();
         }
         else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            Debug.Log("Down Arrow key was pressed.");
             max = guess;
-            guess = (max + min) / 2;
-            Debug.Log("Is your number " + guess + "?");
+            NextGuess();
 
         }
         else if (Input.GetKeyDown(KeyCode.Return))
         {
-            Debug.Log("Enter key was pressed.");
             Debug.Log("Your number is " + guess);
+            StartGame();
         }
+    }
+
+    void NextGuess()
+    {
+        guess = (max + min) / 2;
+        Debug.Log("Is your number " + guess + "?");
     }
 }
 ```
@@ -257,3 +269,69 @@ public class NumberWizard : MonoBehaviour
 Trying to guess the number 643:
 
 ![Guessed Number](readme-images/guessed-number.png)
+
+Something to note is that this game still has a major bug. When we hit up and down a certain amount of times, the minimum and maximum values will be equal, meaning that their mean will be equal themselves. In other words, when this condition is reached, we won't be able to update the value anymore and the **guess** variable will get stuck in a value.
+
+## Text101
+
+We'll be creating a text based game that the player chooses what will happen.
+
+### Game design
+
+It's important that the player have a feeling of discovery by choosing their own path through out the game.
+
+The core mechanics of this game is that the player will be choosing their actions by selecting a text.
+
+I'll try to make it a cyberpunk game, despite the theme being steampunk in the course.
+
+It will be just a small project, just so that we get use to Unity's API and overall mechanics.
+
+### The story
+
+It will be just a small part of a story, so that we don't waste to much time on a demo game.
+
+It will be about the CEO of a big cyber security company that runs the region of Denver in Colorado. 
+
+His name is Cole Kravinski and he's been held captive for 4 months now in exchange for security data of the region. 
+
+Knowing a little about neuromancy, Cole finds an opportunity to escape by accessing the matrix and finding out more about his kidnappers and his current location.
+
+Wrapping up, we have:
+1. **The player**: Cole, the CEO;
+2. **The situation**: His kidnapping;
+3. **The setting**: Denver, Colorado;
+4. **The threat**: His death;
+5. **The goal**: Escape alive.
+
+### Creating sprites in Unity
+
+According to the [documentation](https://docs.unity3d.com/Manual/Sprites.html), a sprite is a 2D graphic object obtained from a bitmap image.
+
+To create a sprite in Unity, we just have to right click in the **Assets** area, select **Create**, just like we did to create the C# script, click **2D**, then **Sprites**, and finally, choose between **Square**, **Triangle**, **Diamond**, **Hexagon**, **Circle**, and **Polygon**:
+
+![Create Sprits](readme-images/create-sprites.png)
+
+Similarly to the adding a script into a game object, we can drag and drop a sprite into it. We can do it as many times as we want to ad multiple sprites into a game object.
+
+In their **Inspector** pane, we can change their color, move them around the scene pane (can also be done by clicking and dragging), add scripts etc:
+
+![Inspect](readme-images/inspector.png)
+
+They will appear into our hierarchy tree.
+
+In the top right, we have a bunch of tools to mess around with the sprite, like **Hand Tool**, **Move Tool**, **Scale Tool**, **Rotate Tool**, and **Editor Tool**:
+
+![Tools](readme-images/tools.png)
+
+Despite this being a 2D course, the game scene can be changed to 3D as well:
+
+![Two D Toggle](readme-images/two-d-toggle.png)
+
+Example of 2D:
+
+![Added Sprites](readme-images/added-sprites.png)
+
+**Challenge screenshot:**
+
+![Challenge Screenshot](readme-images/challenge-screenshot.png)
+
