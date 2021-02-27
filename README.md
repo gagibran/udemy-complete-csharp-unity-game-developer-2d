@@ -13,17 +13,26 @@
 ## Table of Contents:
 - [Hello, world](#hello,-world)
     - [Requirements for this course](#requirements-for-this-course)
-    - [C# naming conventions](#c#-naming-conventions)
     - [First C# program](#first-c#-program)
     - [Start method](#start-method)
     - [Update method](#update-method)
 - [Number wizard](#number-wizard)
     - [Debug.Log](#debug.log)
-    - [Variable differences between Java and C#](#variable-differences-between-java-and-c#)
     - [Player input](#player-input)
-    - [Namespaces](#namespaces)
+    - [Unity namespace](#unity-namespace)
     - [Solution](#solution)
 - [Text101](#text101)
+    - [Game design](#game-design)
+    - [The story](#the-story)
+    - [Creating sprites in Unity](#creating-sprites-in-unity)
+- [Differences between C# and Java](#differences-between-c#-and-java)
+    - [C# naming conventions](#c#-naming-conventions)
+    - [Namespaces](#namespaces)
+    - [Data types](#data-types)
+    - [Strings](#strings)
+    - [Converting types](#converting-types)
+    - [Structs](#structs)
+
 
 
 ## Hello, world
@@ -32,16 +41,6 @@
 1. Unity Hub;
 2. A version of Unity. I'm using **Unity 2020.2.5f1 (64-bit)**;
 3. Visual Studio. I'm using **Visual Stdio 2019**.
-
-### C# naming conventions
-
-Most of the naming is in PascalCase.
-
-[Here](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/naming-guidelines) is Microsoft's official naming convention for the C# language.
-
-[Here](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) is Microsoft's official coding convention.
-
-[Here](https://github.com/ktaranov/naming-convention/blob/master/C%23%20Coding%20Standards%20and%20Naming%20Conventions.md) is a repository from [Konstantin Taranov](https://github.com/ktaranov) that condenses all of the conventions.
 
 ### First C# program
 
@@ -155,12 +154,6 @@ This method of printing out is from the **UnityEngine** namespace.
 
 It is more flexible and better than print. It will be later explained.
 
-### Variable differences between Java and C#
-
-To declare a boolean, we use the keyword **bool**.
-
-A string in C# is a primitive type, not a custom class. Thus, we use the keyword **string** (lowercase).
-
 ### Player input
 
 We can read which key the player's pushed in a given situation.
@@ -191,15 +184,11 @@ Here's a [list](https://docs.unity3d.com/ScriptReference/KeyCode.html) from the 
 
 **Note**: normally, we put the curly bracket starting a code block down bellow a statement in C#, like the example above.
 
-### Namespaces
+### Unity namespace
 
-In C# we have an outer scope called **namespace**.
+We're using the **UnityEngine** namespace, that contains all classes, methods from the Unity framework.
 
-They're an extra container that encapsulate classes, like packages.
-
-For example, we're using the **UnityEngine** namespace, that contains all classes, methods from the Unity framework.
-
-We use the keyword **using** at the beginning of our code to import a particular namespace to our project.
+A full documentation can be found [here](https://docs.unity3d.com/2020.2/Documentation/Manual/index.html).
 
 ### Solution
 
@@ -335,3 +324,160 @@ Example of 2D:
 
 ![Challenge Screenshot](readme-images/challenge-screenshot.png)
 
+## Differences between C# and Java
+
+### C# naming conventions
+
+Most of the naming is in PascalCase.
+
+[Here](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/naming-guidelines) is Microsoft's official naming convention for the C# language.
+
+[Here](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) is Microsoft's official coding convention.
+
+[Here](https://github.com/ktaranov/naming-convention/blob/master/C%23%20Coding%20Standards%20and%20Naming%20Conventions.md) is a repository from [Konstantin Taranov](https://github.com/ktaranov) that condenses all of the conventions.
+
+### Namespaces
+
+They are containers for related classes.
+
+They are declared using PascalCase:
+```
+namespace HelloWorld
+{
+    public class Program
+    {
+        public void Main(string[] args)
+        {
+            Console.WriteLine("Hello, world.");
+        }
+    }
+}
+```
+
+We can import namespaces by using the keyword `using` at the beginning of our program. For example:
+```
+using System;
+```
+
+### Data types
+
+They behave just like Java, but each data type is a struct mapped to the .NET primitives.
+
+Here is the [official documentation](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/built-in-types) with all primitive types and their ranges.
+
+They all belong to the `System` namespace.
+
+The most used ones:
+- `byte` maps to `System.Byte` and occupies 1 byte;
+- `short` maps to `System.Int16` and occupies 2 bytes;
+- `int` maps to `System.Int32` and occupies 4 bytes;
+- `long` maps to `System.Int64` and occupies 8 bytes;
+- `float` maps to `System.Single` and occupies 4 bytes;
+- `double` maps to `System.Double` and occupies 8 bytes;
+- `decimal` maps to `System.Decimal` and occupies 16 bytes;
+- `char` maps to `System.Char` and occupies 2 bytes;
+- `bool` maps to `System.Boolean` and occupies 1 byte.
+
+Thus, an `int`, for example, can be declared as `System.Int32 number = 2;`.
+
+Floats and decimals required that we use the keyword `f` and `m`, respectively, in order to not use the system's default, which is `double`.
+
+Decimals have a higher range, so they're more precise than doubles.
+
+The maximum and minimum values of each data type can be checked by accessing their constant variables in each struct, which is `MinValue` and `MaxValue`.
+
+Another difference is that we can user the keyword `var` to create a variable implicitly in the body of a method, instead of explicitly declaring their data type, and the compiler will be able to assign the correct data type and allocate the necessary amount of memory to it. But, we have to keep in mind that `var number = 2;` won't default to `byte` or `short`, but it will default to `int`, unless the number is to big or too small to fit into it. Same with floating numbers, it defaults to `double`.
+
+To create a constant value, we use the `const` keyword. Constants use the PascalCase instead of SCREAMING_CAPS.
+
+### Strings
+
+They're also mapped to a class in the `System` namespace, the `String` class.
+
+They're immutable, meaning that they cannot be changed once declared.
+
+We can iterate though a string by indexing it:
+```
+string name = "Gabriel";
+Console.WriteLine(name[0]);
+// name[1] = b; // This won't compile.
+```
+Which prints:
+```
+G
+```
+
+We can use string concatenation, but we can also use the static `Format()` method from the `String` class:
+```
+int a = 1;
+bool b = true;
+string s = string.Format("a is {0} and b is {1}.", a, b);
+Console.WriteLine(s);
+```
+Which prints:
+```
+a is 1 and b is true.
+```
+We see here that the place holders inside the curly braces are 0-indexed.
+
+We can also join elements from an array or list using the `Join()` method, also in the `String` class:
+```
+int[] a = new int[3] { 1, 2, 3, 4 };
+string s = string.Join(",", a);
+Console.WriteLine(s);
+```
+Which prints `a`'s elements joined by a comma:
+```
+1,2,3,4
+```
+
+There's also a special type of string called **verbatim strings**, which are the pure strings, without the use of special or escape characters. For example: `string s = "\n";` jumps a line and in `string a = "variable\\holding\\a\\path";` we have to escape the backslash in order to use it.
+
+We can simply append a `@` sign at the beginning of our string to use the escape character literally: `string s = @"\n";` equals `\n` literally. The path variable can now be declared as `string a = @"variable\holding\a\path";`. We can even type `Enter` to physically input a new line in the string, instead of using `\n`.
+
+### Converting types
+
+We have **implicit** and **explicit** conversions.
+
+In implicit, it converts as long as there's not information loss, like `byte a = 3;` and `int b = a;`, or `float c = 4;` and `int d = c;`
+
+But, we cannot convert `int a = 1;` to `byte b = c;`, because `int` occupies 4 bytes, whereas `byte`, occupies just one. Even though the number `1` fits into a `byte`, the compiler treats it as information loss and doesn't compile.
+
+In these cases, we can use the **explicit** conversion type, or **casting**, which is just like Java: `int a = 1;` and `byte b = (byte) a;`.
+
+To convert a `string` to an `int`, for example, we can use the methods from the `Convert` class from the `System` namespace:
+```
+using System;
+
+string s = "1";
+int i = Convert.ToInt32(s);
+```
+All primitive types have overloaded methods for conversion, that accept each primitive type as an argument.
+
+We can also use the static `Parse` method from each primitive type struct:
+```
+string s = "1";
+int i = int.Parse(s);
+```
+
+### Structs
+
+It's a container in C# that's similar to a class.
+
+They're not really used - we use classes 99% of the time.
+
+They combine related fields and methods together.
+
+There are a lot of tiny differences between classes and structs that's in the [official documentation](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/struct), but they're not very important to know.
+
+What we should take from **structs**, is that we should use them when we want to create a small lightweight object. For example:
+```
+public struct RgbColor
+{
+    public int Red;
+    public int Green;
+    public int Blue;
+}
+```
+
+It's more efficient to define it as a structure, when we need to create thousands of objects.
