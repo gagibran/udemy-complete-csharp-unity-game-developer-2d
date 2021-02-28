@@ -33,8 +33,6 @@
     - [Converting types](#converting-types)
     - [Structs](#structs)
 
-
-
 ## Hello, world
 
 ### Requirements for this course
