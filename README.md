@@ -33,11 +33,13 @@
     - [C# naming conventions](#c-naming-conventions)
     - [Namespaces](#namespaces)
     - [Data types](#data-types)
+    - [Casting characters to integers](#casting-characters-to-integers)
     - [Strings](#strings)
     - [Converting types](#converting-types)
     - [Structs](#structs)
     - [Enums](#enums)
     - [Reference types and value types](#reference-types-and-value-types)
+    - [Random number](#random-number)
 
 ## Hello, world
 
@@ -714,6 +716,32 @@ string s = "1";
 int i = int.Parse(s);
 ```
 
+### Casting characters to integers
+
+Since a character is represented by a number when CLR runs, we can actually cast a `char` to an `int`:
+```cs
+char a = 'a';
+int numA = (int) a;
+```
+Which prints out "97".
+
+This maps to an [ASCII table](https://www.ascii-code.com/)
+
+The reverse also works:
+```cs
+int numA = 97;
+char a = (char) numA;
+```
+Which prints out "a".
+
+Another important thing to note is that, instead of concatenating, when we do math operations with a `char` and a number (any number data type), CLR automatically converts the `char` to its related ASCII number and does the operation.
+
+Thus:
+```cs
+Console.WriteLine('a' + 10);
+```
+Returns "107".
+
 ### Structs
 
 It's a container in C# that's similar to a class.
@@ -956,3 +984,44 @@ Now, when we apply the method `MakeOld()` to increase the field `Age` of the `Pe
 Instead, a reference to `person` is passed inside the `MakeOld()` method, which points to the same memory address of `person`. Thus, the age will be incremented by 10, making it 30.
 
 That notation when we created the object is the **object initialization syntax**, and with it, we can quickly initialize public fields when allocating a class to the heap.
+
+### Random number
+
+We can create random numbers by using the `System.Random` class.
+
+It has an overloaded constructor that allows us to input a seed to generate random number from, so that our numbers are not "that random".
+
+We can create an object for this class and use its methods.
+
+Some of them are `System.Random.Next()`, which returns a random integer, respecting its maximum and minimum values.
+
+This method has an overload, that allows us to input a maximum and minimum value - a range that we want our number to be generated from.
+
+Adding an integer to the resulting random number on the interval offsets the whole interval. Thus, [doing operations with a `char` and casting the result back to a `char`](#casting-characters-to-integers) allows us to make some sort of random password generation.
+
+For this generator, because stings are immutable objects, we cannot create an empty string and concatenate it with each new password character generated in the loop. Thus, we have to assign them into a buffer array, and then, when creating a new `string`, we can use one of its overloaded constructors that accepts an array of `char`:
+```cs
+using System;
+
+namespace CSharpLearning
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var randNum = new Random();
+            const int passwordLength = 10;
+            Console.WriteLine("Starting loop...");
+            var buffer = new char[passwordLength];
+            for (int i = 0; i < passwordLength; i++)
+            {
+                buffer[i] =(char) ('a' + randNum.Next(0, 26));
+            }
+            var randomPass = new string(buffer);
+            Console.WriteLine(randomPass);
+        }
+    }
+}
+```
+
+We have also `System.Random.NextBytes()`, `System.Random.NextBytes()`, `System.Random.NextDouble()` and so on...
