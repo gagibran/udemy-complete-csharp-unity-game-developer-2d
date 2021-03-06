@@ -1,14 +1,19 @@
 # [GameDev.tv](https://www.gamedev.tv/)'s Complete C# Unity Game Developer 2D on Udemy
 
-## A repository aimed to store the code and the notes generated from the lessons of [the course](https://www.udemy.com/course/unitycourse/).
+A repository aimed to store the code and the notes generated from the lessons of [the course](https://www.udemy.com/course/unitycourse/).
 
-## I will not make a detailed dive into Object Oriented Programming, because this has already been discussed in my [ learning Java repository](https://github.com/gagibran/udemy-java-the-complete-java-developer-course).
+I will not make a detailed dive into Object Oriented Programming, because this has already been discussed in my [learning Java repository](https://github.com/gagibran/udemy-java-the-complete-java-developer-course).
 
-## Refer to that [README.md](https://github.com/gagibran/udemy-java-the-complete-java-developer-course/blob/dev/README.md) to know more about OOP.
+Refer to that [README.md](https://github.com/gagibran/udemy-java-the-complete-java-developer-course/blob/dev/README.md) to know more about OOP.
 
-## I will only list the main differences between C# and Java.
+I will only list the main differences between C# and Java. Based on Mosh Hamedani's C# series, which include:
+1. [C# Basics for Beginners: Learn C# Fundamentals by Coding](https://www.udemy.com/course/csharp-tutorial-for-beginners/);
+2. [C# Intermediate: Classes, Interfaces and OOP](https://www.udemy.com/course/csharp-intermediate-classes-interfaces-and-oop/);
+3. [C# Advanced Topics: Prepare for Technical Interviews](https://www.udemy.com/course/csharp-advanced/).
 
-## Since Unity projects are too large to be stored in GitHub, I will only keep this README.md, the LICENSE, and .gitignore here.
+I will also include some exercises that I see fit from these courses.
+
+Since Unity projects are too large to be stored in GitHub, I will only keep this README.<span>md</span>, the LICENSE, and .gitignore here.
 
 ## Table of Contents:
 - [Hello, world](#hello,-world)
@@ -40,6 +45,7 @@
     - [Enums](#enums)
     - [Reference types and value types](#reference-types-and-value-types)
     - [Random number](#random-number)
+    - [Returning in void](#returning-in-void)
 
 ## Hello, world
 
@@ -676,6 +682,16 @@ a is 1 and b is true.
 ```
 We see here that the place holders inside the curly braces are 0-indexed.
 
+We don't actually need to use the `Format()` when passing strings to `Console.Write()` or `Console.WriteLine()`. We can straight up pass the string and the arguments there:
+```cs
+int number = 2;
+Console.WriteLine("Number: {0}.", number);
+```
+This prints:
+```
+Number: 2.
+```
+
 We can also join elements from an array or list using the `Join()` method, also in the `String` class:
 ```cs
 int[] a = new int[3] { 1, 2, 3, 4 };
@@ -687,9 +703,15 @@ Which prints `a`'s elements joined by a comma:
 1,2,3,4
 ```
 
+We also have the `Split()` method, which returns an array of elements separated by the argument passed into the method, of the original string:
+```cs
+```
+
 There's also a special type of string called **verbatim strings**, which are the pure strings, without the use of special or escape characters. For example: `string s = "\n";` jumps a line and in `string a = "variable\\holding\\a\\path";` we have to escape the backslash in order to use it.
 
 We can simply append a `@` sign at the beginning of our string to use the escape character literally: `string s = @"\n";` equals `\n` literally. The path variable can now be declared as `string a = @"variable\holding\a\path";`. We can even type `Enter` to physically input a new line in the string, instead of using `\n`.
+
+We can get input from the user by using `Console.ReadLine()`, which gets the input and converts it into a string. Thus, we have to assign it to a `string` variable.
 
 ### Converting types
 
@@ -993,7 +1015,7 @@ It has an overloaded constructor that allows us to input a seed to generate rand
 
 We can create an object for this class and use its methods.
 
-Some of them are `System.Random.Next()`, which returns a random integer, respecting its maximum and minimum values.
+Some of them are `System.Random.Next()`, which returns a random integer, respecting the wrapper class' maximum and minimum values.
 
 This method has an overload, that allows us to input a maximum and minimum value - a range that we want our number to be generated from.
 
@@ -1024,4 +1046,26 @@ namespace CSharpLearning
 }
 ```
 
-We have also `System.Random.NextBytes()`, `System.Random.NextBytes()`, `System.Random.NextDouble()` and so on...
+We have also `System.Random.NextBytes()`, `System.Random.NextBytes()`, `System.Random.NextDouble()` and so on.
+
+### Returning in void
+
+We can use the `return` keyword in a void method followed by no information to break out of the method:
+```cs
+static void ExerciseThree()
+    {
+        int randomInt = new Random().Next(1, 11);
+        Console.WriteLine("Guess a number between 1 to 10. You have 4 tries:");
+        for (int i = 0; i < 4; i++)
+        {
+            Console.Write(string.Format("Try {0}: ", i + 1));
+            int guess = Convert.ToInt32(Console.ReadLine());
+            if (guess == randomInt)
+            {
+                Console.WriteLine("You won! The number was {0}", randomInt);
+                return;
+            }
+        }
+        Console.WriteLine("You lost. The number was {0}.", randomInt);
+    }
+```
