@@ -7,15 +7,17 @@ I will not make a detailed dive into Object Oriented Programming, because this h
 Refer to that [README.md](https://github.com/gagibran/udemy-java-the-complete-java-developer-course/blob/dev/README.md) to know more about OOP.
 
 I will only list the main differences between C# and Java. Based on Mosh Hamedani's C# series, which include:
+
 1. [C# Basics for Beginners: Learn C# Fundamentals by Coding](https://www.udemy.com/course/csharp-tutorial-for-beginners/);
 2. [C# Intermediate: Classes, Interfaces and OOP](https://www.udemy.com/course/csharp-intermediate-classes-interfaces-and-oop/);
 3. [C# Advanced Topics: Prepare for Technical Interviews](https://www.udemy.com/course/csharp-advanced/).
 
-I will also include some exercises that I see fit from these courses.
+I will also include some exercises that I see fit from these courses. All of them made using .NET Core 5.
 
 Since Unity projects are too large to be stored in GitHub, I will only keep this README.<span>md</span>, the LICENSE, and .gitignore here.
 
 ## Table of Contents:
+
 - [Hello, world](#hello,-world)
     - [Requirements for this course](#requirements-for-this-course)
     - [First C# program](#first-c-program)
@@ -34,6 +36,9 @@ Since Unity projects are too large to be stored in GitHub, I will only keep this
     - [Updating the text content](#updating-the-text-content)
     - [Game states](#game-states)
     - [Scriptable objects](#scriptable-objects)
+    - [Linking the scriptable object to a variable](#linking-the-scriptable-object-to-a-variable)
+    - [Storing the next states](#storing-the-next-states)
+    - [Managing next states](#managing-next-states)
 - [Differences between C# and Java](#differences-between-c-and-java)
     - [C# naming conventions](#c-naming-conventions)
     - [Namespaces](#namespaces)
@@ -46,6 +51,7 @@ Since Unity projects are too large to be stored in GitHub, I will only keep this
     - [Reference types and value types](#reference-types-and-value-types)
     - [Random number](#random-number)
     - [Returning in void](#returning-in-void)
+    - [Access modifiers](#access-modifiers)
 
 ## Hello, world
 
@@ -71,6 +77,7 @@ Right after clicking **Create**, we have to rename the file to something other t
 ![Hello World C#](readme-images/hello-world-cs.png)
 
 We can choose to open it in Visual Studio by double clicking the file. The template C# script that's generated is:
+
 ```cs
 using System.Collections;
 using System.Collections.Generic;
@@ -93,6 +100,7 @@ public class HelloWorld : MonoBehaviour
 ```
 
 We can add a print statement in order to make it print out **Hello, world.**:
+
 ```cs
 using System.Collections;
 using System.Collections.Generic;
@@ -179,6 +187,7 @@ Inside this class we have the overloaded method **GetKeyDown()** that takes an a
 This method reads which key an user pressed **down** in their keyboard.
 
 Example to read the **up arrow**:
+
 ```cs
 if (Input.GetKeyDown(KeyCode.UpArrow))
 {
@@ -205,6 +214,7 @@ A full documentation can be found [here](https://docs.unity3d.com/2020.2/Documen
 ### Solution
 
 We create a project just like we did with the [hello, world](#hello,-world) challenge, create the C# file in **Assets**, and add the following code to it:
+
 ```cs
 using System.Collections;
 using System.Collections.Generic;
@@ -406,9 +416,10 @@ It's always good practice to reset these values to 0 whenever we create a new em
 
 Secondly, we need to create an empty C# script and link it to `Game Logic`, just like we did [previously](#first-c-program).
 
-In this newly created class (I called it GameLogic.cs), we need to create a local variable, inside the class, of type `UnityEngine.UI.Text`. This will be used as our link from the script to the engine to make changes to the story.
+In this newly created class, I called it `GameLogic.cs`, we need to create a local variable, inside the class, of type `UnityEngine.UI.Text`. This will be used as our link from the script to the engine to make changes to the story.
 
 We also need to include the `UnityEngine.SerializeField.SerializeField()` [attribute](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/attributes/) in front of our variable so that the link is properly done:
+
 
 ```cs
 using System.Collections;
@@ -449,6 +460,7 @@ Now, to dynamically update the story text, we can drag and drop the game object 
 That's why we created the variable as of type `UnityEngine.UI.Text`, so that Unity knows that we're trying to link a text element to this particular variable.
 
 Now, in the `Start()` method, we'll assign a `string` to the property `Text.text()`, which will, then, update  when we hit the play button with this string that we created:
+
 ```cs
 using System.Collections;
 using System.Collections.Generic;
@@ -474,6 +486,7 @@ public class GameLogic : MonoBehaviour
     }
 }
 ```
+
 When we hit play:
 
 ![Text Dynamically Changed](readme-images/text-dynamically-changed.png)
@@ -522,13 +535,18 @@ Since this script is not linked to the game logic, we don't need the `Start()` a
 
 We'll actually create instead a `string` local variable, which is also a [serialized field](#updating-the-text-content).
 
-At the top of our script, just above the class declaration, we need to also include the attribute `CreateAssetMenuAttribute.CreateAssetMenuAttribute()`, or, it's alias, `CreateAssetMenu()`.
-
-We need to pass as a parameter of `menuName` the name of the class that we want to make as a scriptable object. In our case, `State`.
-
 We can also specify another attribute called `UnityEngine.TextAreaAttribute.TextAreaAttribute()` to enlarge the text field area, that we will create shortly, so that we have better visibility when typing.
 
-This attribute take in two arguments, the first one, is the minimum size that the text box will have, and the second one, is the minimum amount of lines that the text box will have until it creates a scroll bar:
+This attribute take in two arguments, the first one, is the minimum size that the text box will have, and the second one, is the minimum amount of lines that the text box will have until it creates a scroll bar.
+
+At the top of our script, just above the class declaration, we need to also include the attribute `CreateAssetMenuAttribute.CreateAssetMenuAttribute()`, or, it's alias, `CreateAssetMenu()`.
+
+We need to pass, as a `menuName` parameter, the name of the class that we want to make as a scriptable object. In our case, `State`.
+
+This creates an option to create a `State` scriptable object in assets, in Unity.
+
+The code:
+
 ```cs
 using System.Collections;
 using System.Collections.Generic;
@@ -541,9 +559,11 @@ public class State : ScriptableObject
 }
 ```
 
-Now, in Unity, if we right click inside the `Assets` pane, we can create a state, which is a **scriptable object**:
+Now, in Unity, if we right-click inside the `Assets` pane, we can create a state, which is the **scriptable object** that we've just created:
 
 ![Create State Unity](readme-images/create-state-unity.png)
+
+This option, as previously said, was created by `[CreateAssetMenu(menuName = "State")]`.
 
 If we check the `Inspector` pane, we can see that there's the `Story Text` field there, as mentioned before, in which we can put the starting text.
 
@@ -551,7 +571,10 @@ Similar to when we serialized a variable before, Unity converts the variable nam
 
 ![Inspect Starting State](readme-images/inspect-starting-state.png)
 
+Each state that we create will have this serialized field by default, now.
+
 Then, we can write our story text there instead of doing something like:
+
 ```cs
 using System.Collections;
 using System.Collections.Generic;
@@ -580,11 +603,270 @@ public class GameLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+    }
+}
+```
+
+Here we had to concatenate strings, use special characters and save it all into just one variable, decreasing the quality of the readability of our code.
+
+### Linking the scriptable object to a variable
+
+Inside `State.cs`, we're gonna add a public getter method for the string that we created there, `storyText`:
+
+```cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu(menuName = "State")]
+public class State : ScriptableObject
+{
+    [TextArea(20, 30)] [SerializeField] string storyText;
+
+    // Getter:
+    public string GetStateStory()
+    {
+        return storyText;
+    }
+}
+```
+
+Now, in `GameLogic.cs`, we can call this getter to access `storyText` and update `textComponent.Text` with it.
+
+We first need to create another `SerializedField` for the starting state of our game, in our `Game Logic` object. 
+To store the `StartingState` that we created in `Assets`.
+
+Thus, in `GameLogic.cs`, we create a variable called `startingState`, of type `State` (the class we created) and set it as a `[SerializedField]`:
+
+```cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class GameLogic : MonoBehaviour
+{
+
+    // Serializing a field (or variable), making it available to edit into Unity. Using the data type UnityEngine.UI.Text:
+    [SerializeField] Text textComponent;
+    [SerializeField] State startingState;
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
+        // Updating the game with this text when we click on the play button:
+        textComponent.text = "";
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         
     }
 }
 ```
-Here we had to concatenate strings, use special characters and save it all into just one variable, decreasing the quality of the readability of our code.
+
+When we go back to inspect `Game Logic` in Unity, we see that there' now a field called `Starting State`, just beneath `Text Component`.
+
+We'll attach the scriptable object `StartingState.asset` that we created there by dragging it from `Assets` into this field:
+
+![Attaching Starting State](readme-images/attaching-starting-state.png)
+
+Afterwards, we'll create a variable called `state`, of type `State` in `GameLogic.cs`, which holds the current state that we are, so that we can access `GetStateStory()` within this script.
+
+At the start of the game, that state needs to be the starting state. Thus, we assign `state = startingState`, which comes from the serialized field in `StartingState.asset`, and we also initialize `textComponent.text = startingState.GetStateStory()` in `Start()`, which will print out the starting state when we start the game:
+
+```cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class GameLogic : MonoBehaviour
+{
+
+    // Serializing a field (or variable), making it available to edit into Unity. Using the data type UnityEngine.UI.Text:
+    [SerializeField] Text textComponent;
+    [SerializeField] State startingState;
+
+    // Declaring the current state variable:
+    State state;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Initializing the current state with the starting one.
+        // This has to be done in order to "state" to have a value. In this case, the value comes from the serialized field:
+        state = startingState;
+
+        // Updating the game with this text when we click on the play button:
+        textComponent.text = startingState.GetStateStory();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
+}
+```
+
+**It is very important to initialize `state` here, otherwise when we update it later on, in the `Update()` method, we'll get a `NullReferenceException`, meaning that `state` was never initialized.**
+
+Now, when we click the play button in Unity, we get:
+
+![Scriptable Object Play](readme-images/scriptable-object-play.png)
+
+Recapitulating our steps so far:
+1. We created the `Game Logic` game object in Unity and `GameLogic.cs`;
+2. We attached `GameLogic.cs` to `Game Logic`;
+3. We created a scriptable object script called `State.cs`, which inherits from `ScriptableObject`;
+4. We created a serialized field there called `storyText`;
+5. We created a scriptable object in Unity, which is the starting state of our game, `StartingState.asset`;
+6. There, we put our starting state text;
+7. We created our first state in `GameLogic.cs`, which is the variable `startingState` and it's serialized in Unity.
+8. We created the `state` variable, which will be later updated;
+9. We attached `StartingState.asset` to the serialized `Starting State` field in `Game Logic`;
+10. We created a getter for the serialized variable `storyText` in `StartingState.cs`;
+11. We assigned `textComponent.text` to `startingState.GetStateStory()`, which returns the current state of the story.
+
+### Storing the next states
+
+Right now, need to think of a way to store all of the next states in our game. For that, we can use an array.
+
+This array will be created in `GameLogic.cs` and it will have a getter associated.
+
+Since we want to get the next **states**, this array will be of the same type of its parent class, `State`.
+
+Thus, each element of this array will have access to `GetStateSTory()`, which returns `storyText`.
+
+This array will also be serialized, so that we can store the next states in a state file:
+
+```cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu(menuName = "State")]
+public class State : ScriptableObject
+{
+    [TextArea(20, 30)] [SerializeField] string storyText;
+    [SerializeField] State[] nextStates; // Storying the next states. The contents of this array will have access to storyText.
+
+    // Getters:
+    public string GetStateStory()
+    {
+        return storyText;
+    }
+    public State[] GetNextStates()
+    {
+        return nextStates;
+    }
+}
+```
+
+Now, if we inspect `StartingState.asset` again:
+
+![Starting State Array](readme-images/starting-state-array.png)
+
+I actually grouped state 1 and 2 in `1. Force to loosen your hands and feet;` for the sake of simplicity.
+
+We can see that a list was created. Now, we can store the four states that this starting one leads to:
+
+1. Force to loosen your hands;
+2. Force to loosen your feet;
+3. Scream for help.
+
+I created the next states for these options:
+
+![Some States](readme-images/some-states.png)
+
+Now, we have to define the size of this array to `4`, by changing the default `0` on the far right. Then, we can drag and drop all of our states to this list:
+
+![Next States Appended](readme-images/next-states-appended.png)
+
+### Managing next states
+
+Now we need to [read the player's input](#number-wizard) in order to know which state we need to go to:
+
+```cs
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class GameLogic : MonoBehaviour
+{
+
+    // Serializing a field (or variable), making it available to edit into Unity. Using the data type UnityEngine.UI.Text:
+    [SerializeField] Text textComponent;
+    [SerializeField] State startingState;
+
+    // Declaring the current state variable:
+    State state;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Initializing the current state with the starting one.
+        // This has to be done in order to "state" to have a value. In this case, the value comes from the serialized field:
+        state = startingState;
+
+        // In the beginning, state will be the starting state:
+        // Updating the game with this text when we click on the play button:
+        textComponent.text = startingState.GetStateStory();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        ManageState();
+    }
+
+    // Storying the next states of a state within an array:
+    private void ManageState()
+    {
+        State[] nextStates = state.GetNextStates();
+
+        // If the player types "1", "2", or "3" in their keyboard:
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            state = nextStates[0];
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            state = nextStates[1];
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            state = nextStates[2];
+        }
+
+        // Updates the next state:
+        textComponent.text = state.GetStateStory();
+    }
+}
+```
+
+The method `ManageState()`, which is called once per frame in `Update()`, updates the `state` variable by accessing the `nextStates` array, that's being currently held in the scriptable object of that state.
+
+If the player presses `1`, `2`, or `3`, it goes to that state.
+
+Currently, the game has a limitation of 3 routes per state, using this logic.
+
+When hit play, when hitting `1` we get:
+
+![First State](readme-images/first-state.png)
+
+### Designing game flow
+
+It's important to write our game and design the various states that it has beforehand.
+
+A nice tool to create a story flow is app.diagrams.net, formerly known as draw.io. It creates a flow chart as a PNG, XML, HTML and some other options. I personally prefer the HTML option.
 
 ## Differences between C# and Java
 
@@ -603,6 +885,7 @@ Most of the naming is in PascalCase.
 They are containers for related classes.
 
 They are declared using PascalCase:
+
 ```cs
 namespace HelloWorld
 {
@@ -617,6 +900,7 @@ namespace HelloWorld
 ```
 
 We can import namespaces by using the keyword `using` at the beginning of our program. For example:
+
 ```cs
 using System;
 ```
@@ -659,52 +943,81 @@ They're also mapped to a class in the `System` namespace, the `String` class.
 They're immutable, meaning that they cannot be changed once declared.
 
 We can iterate though a string by indexing it:
+
 ```cs
 string name = "Gabriel";
 Console.WriteLine(name[0]);
 // name[1] = b; // This won't compile.
 ```
+
 Which prints:
+
 ```
 G
 ```
 
 We can use string concatenation, but we can also use the static `Format()` method from the `String` class:
+
 ```cs
 int a = 1;
 bool b = true;
 string s = string.Format("a is {0} and b is {1}.", a, b);
 Console.WriteLine(s);
+
 ```
 Which prints:
+
 ```
 a is 1 and b is true.
 ```
+
 We see here that the place holders inside the curly braces are 0-indexed.
 
 We don't actually need to use the `Format()` when passing strings to `Console.Write()` or `Console.WriteLine()`. We can straight up pass the string and the arguments there:
+
 ```cs
 int number = 2;
 Console.WriteLine("Number: {0}.", number);
 ```
+
 This prints:
+
 ```
 Number: 2.
 ```
 
 We can also join elements from an array or list using the `Join()` method, also in the `String` class:
+
 ```cs
 int[] a = new int[3] { 1, 2, 3, 4 };
 string s = string.Join(",", a);
 Console.WriteLine(s);
 ```
+
 Which prints `a`'s elements joined by a comma:
+
 ```
 1,2,3,4
 ```
 
 We also have the `Split()` method, which returns an array of elements separated by the argument passed into the method, of the original string:
+
 ```cs
+static void GetMax()
+    {
+        Console.WriteLine("Enter numbers separated by comma:");
+        string[] numbersStr = Console.ReadLine().Split(",");
+        int currentMax = int.MinValue;
+        foreach (string numberStr in numbersStr)
+        {
+            int number = int.Parse(numberStr);
+            if (number > currentMax)
+            {
+                currentMax = number;
+            }
+        }
+        Console.WriteLine("Max number: {0}.", currentMax);
+    }
 ```
 
 There's also a special type of string called **verbatim strings**, which are the pure strings, without the use of special or escape characters. For example: `string s = "\n";` jumps a line and in `string a = "variable\\holding\\a\\path";` we have to escape the backslash in order to use it.
@@ -724,15 +1037,18 @@ But, we cannot convert `int a = 1;` to `byte b = c;`, because `int` occupies 4 b
 In these cases, we can use the **explicit** conversion type, or **casting**, which is just like Java: `int a = 1;` and `byte b = (byte) a;`.
 
 To convert a `string` to an `int`, for example, we can use the methods from the `Convert` class from the `System` namespace:
+
 ```cs
 using System;
 
 string s = "1";
 int i = Convert.ToInt32(s);
 ```
+
 All primitive types have overloaded methods for conversion, that accept each primitive type as an argument.
 
 We can also use the static `Parse` method from each primitive type struct:
+
 ```cs
 string s = "1";
 int i = int.Parse(s);
@@ -741,6 +1057,7 @@ int i = int.Parse(s);
 ### Casting characters to integers
 
 Since a character is represented by a number when CLR runs, we can actually cast a `char` to an `int`:
+
 ```cs
 char a = 'a';
 int numA = (int) a;
@@ -750,19 +1067,23 @@ Which prints out "97".
 This maps to an [ASCII table](https://www.ascii-code.com/)
 
 The reverse also works:
+
 ```cs
 int numA = 97;
 char a = (char) numA;
 ```
-Which prints out "a".
+
+Which prints out `a`.
 
 Another important thing to note is that, instead of concatenating, when we do math operations with a `char` and a number (any number data type), CLR automatically converts the `char` to its related ASCII number and does the operation.
 
 Thus:
+
 ```cs
 Console.WriteLine('a' + 10);
 ```
-Returns "107".
+
+Returns `107`.
 
 ### Structs
 
@@ -775,6 +1096,7 @@ They combine related fields and methods together.
 There are a lot of tiny differences between classes and structs that's in the [official documentation](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/struct), but they're not very important to know.
 
 What we should take from **structs**, is that we should use them when we want to create a small lightweight object. For example:
+
 ```cs
 public struct RgbColor
 {
@@ -797,12 +1119,15 @@ It works just like a class.
 We can create one using the keyword `enum`.
 
 Example: instead of declaring multiple constants like:
+
 ```cs
 const int RegularAirMail = 1;
 const int RegisteredAirMail = 2;
 const int Express = 3;
 ```
+
 We declare a `enum` block:
+
 ```cs
 public enum ShippingMethod
 {
@@ -811,9 +1136,11 @@ public enum ShippingMethod
     Express = 3
 }
 ```
+
 Notice that we didn't have to explicitly specify the data type, because their integers by default.
 
 We can change the data type to **another numeric data type only** using a colon:
+
 ```cs
 public enum ShippingMethod : byte
 {
@@ -824,6 +1151,7 @@ public enum ShippingMethod : byte
 ```
 
 If we don't specify the values of the constants, the first member will be automatically assigned to 0, and from there, every member's value will be increased by one:
+
 ```cs
 public enum ShippingMethod
 {
@@ -832,9 +1160,11 @@ public enum ShippingMethod
     Express // 2.
 }
 ```
+
 But it's best practice to always give these constants a value.
 
 We can access the enums using the dot notation and assigning it's value to a enum type, since it works like a class:
+
 ```cs
 public enum ShippingMethod
 {
@@ -845,56 +1175,75 @@ public enum ShippingMethod
 
 ShippingMethod method = ShippingMethod.Express;
 ```
+
 Or, just use `var`:
+
 ```cs
 var method = ShippingMethod.Express;
 ```
+
 If we print this variable with `Console.WriteLine()`, we get:
+
 ```
 Express
 ```
+
 Which is the name of the constant.
 
 By default, `Console.WriteLine()` **always converts it's argument into a string**. So, if we want to convert the type of this enum from `ShippingMethod` to an actual `string` without printing it, we can use the `ToString()` static method from the `System.Enum` abstract class:
+
 ```cs
 var methodString = method.ToString();
 ```
 
 The other around also works. We can also parse a `string` into a `ShippingMethod` using the overloaded `Parse()` static method, also from  from the `System.Enum` abstract class:
+
 ```cs
 Object shippingArgument = Enum.Parse(typeof(ShippingMethod), "Express"); // Or var shippingArgument = ...
 ```
+
 Here we used the `typeof` alias to the class `System.Type`, which returns the type of data from that enum (`NamespaceThatIamIn.ShippingMethod`), which is the first argument of this `Parse()` method, and we pass in the `string` that we want to search in the `enum` as the second argument. This prints out:
+
 ```
 Express
 ```
+
 If the argument wasn't in `ShippingMethod`, it would've not compiled and thrown us an error.
 
 Notice that `Parse()` returns an `System.Object` type, which is a class in the `System` namespace.
 
 To get the actual value from the constant, we need to cast it to an integer:
+
 ```cs
 var methodValue = (int) method;
 ```
+
 Printing this out, we get:
+
 ```
 3
 ```
 
 We can also map the values back to the constants by converting them into the enum type:
+
 ```cs
 Console.WriteLine((ShippingMethod) 2);
 ```
+
 Prints out:
+
 ```
 RegisteredAirMail
 ```
 
 If the value doesn't exist inside the enum, we get the number back:
+
 ```cs
 Console.WriteLine((ShippingMethod) 4);
 ```
+
 Returns:
+
 ```
 4
 ```
@@ -916,6 +1265,7 @@ There's a process called garbage collection that' done by the [CLR](https://docs
 So, once in a while, the CLR searches for objects that are no longer in use and removes them from the heap.
 
 Example of **value types**. Here we're using a [struct](#struct) (integers):
+
 ```cs
 using System;
 
@@ -935,9 +1285,11 @@ namespace CSharpLearning
     }
 }
 ```
+
 Here, `b` **copied** `a`. Thus, they're independent from each other.
 
 Now, an example of **reference types** using classes (arrays):
+
 ```cs
 using System;
 
@@ -963,11 +1315,13 @@ namespace CSharpLearning
     }
 }
 ```
+
 Here, the first elements of both arrays were changed. That's because we only allocated memory **once** for both arrays, that was when `arrayOne` was created. When we assigned the value of `arrayTwo` to `arrayOne`, we actually just **pointed** `arrayTwo` to the same memory address of `arrayOne`, on the heap.
 
 Thus, when the contents of `arrayOne` were changed, it also changed for `arrayTwo`, because in fact, they are **the same array**.
 
 Another example:
+
 ```cs
 using System;
 
@@ -999,6 +1353,7 @@ namespace CSharpLearning
     }
 }
 ```
+
 Here, we created two static methods inside the `Program` class. When calling the `Increment()` method on the `number` integer variable, we **make a copy** of `number` inside the method, allocating new memory in the stack, therefore, change the variable **just inside the method**. Thus, our `number` variable remains unaltered.
 
 Now, when we apply the method `MakeOld()` to increase the field `Age` of the `Person` class. Here, we don't make any copies of the created `person` variable, because it's been created with the `new` keyword and it's allocated in the heap.
@@ -1022,6 +1377,7 @@ This method has an overload, that allows us to input a maximum and minimum value
 Adding an integer to the resulting random number on the interval offsets the whole interval. Thus, [doing operations with a `char` and casting the result back to a `char`](#casting-characters-to-integers) allows us to make some sort of random password generation.
 
 For this generator, because stings are immutable objects, we cannot create an empty string and concatenate it with each new password character generated in the loop. Thus, we have to assign them into a buffer array, and then, when creating a new `string`, we can use one of its overloaded constructors that accepts an array of `char`:
+
 ```cs
 using System;
 
@@ -1051,6 +1407,7 @@ We have also `System.Random.NextBytes()`, `System.Random.NextBytes()`, `System.R
 ### Returning in void
 
 We can use the `return` keyword in a void method followed by no information to break out of the method:
+
 ```cs
 static void ExerciseThree()
     {
@@ -1069,3 +1426,7 @@ static void ExerciseThree()
         Console.WriteLine("You lost. The number was {0}.", randomInt);
     }
 ```
+
+### Access modifiers
+
+If we don't specify one, methods are `public` by default.
