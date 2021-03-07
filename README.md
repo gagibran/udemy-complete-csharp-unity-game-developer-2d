@@ -30,7 +30,7 @@ Since Unity projects are too large to be stored in GitHub, I will only keep this
     - [Solution](#solution)
 - [Text101](#text101)
     - [Game design](#game-design)
-    - [The story](#the-story)
+    - [The game](#the-game)
     - [Creating sprites in Unity](#creating-sprites-in-unity)
     - [UI](#ui)
     - [Updating the text content](#updating-the-text-content)
@@ -297,22 +297,9 @@ I'll try to make it a cyberpunk game, despite the theme being steampunk in the c
 
 It will be just a small project, just so that we get use to Unity's API and overall mechanics.
 
-### The story
+### The game
 
-It will be just a small part of a story, so that we don't waste to much time on a demo game.
-
-It will be about the CEO of a big cyber security company, Asla Inc., that runs the region of Denver in Colorado. 
-
-His name is Cole Kravinski and he's been held captive for 4 months now in exchange for security data of the region. 
-
-Knowing a little about neuromancy, Cole finds an opportunity to escape by accessing the matrix and finding out more about his abductors, their final goals with the data, and his current location.
-
-Wrapping up, we have:
-1. **The player**: Cole, the CEO;
-2. **The situation**: His kidnapping;
-3. **The setting**: Denver, Colorado;
-4. **The threat**: His death;
-5. **The goal**: Escape alive.
+I created a repository to store the game's files, like Unity files, the story, the flow chart etc. It can be found [here](#https://github.com/gagibran/wizards-of-oslam). In this section, I will describe the process used to create the game and the lessons learned.
 
 ### Creating sprites in Unity
 
