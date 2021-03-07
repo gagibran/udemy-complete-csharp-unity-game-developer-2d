@@ -299,7 +299,7 @@ It will be just a small project, just so that we get use to Unity's API and over
 
 ### The game
 
-I created a repository to store the game's files, like Unity files, the story, the flow chart etc. It can be found [here](#https://github.com/gagibran/wizards-of-oslam). In this section, I will describe the process used to create the game and the lessons learned.
+I created a repository to store the game's files, like Unity files, the story, the flow chart etc. It can be found [here](https://github.com/gagibran/wizards-of-oslam). In this section, I will describe the process used to create the game and the lessons learned.
 
 ### Creating sprites in Unity
 
