@@ -777,6 +777,8 @@ Now, we have to define the size of this array to `4`, by changing the default `0
 
 ### Managing next states
 
+In the final version of my game, I reduced the choices to only 2, otherwise the game would take to long to make.
+
 Now we need to [read the player's input](#number-wizard) in order to know which state we need to go to:
 
 ```cs
@@ -789,7 +791,7 @@ using UnityEngine.UI;
 public class GameLogic : MonoBehaviour
 {
 
-    // Serializing a field (or variable), making it available to edit into Unity. Using the data type UnityEngine.UI.Text:
+    // Serializing a field (or variable), making it available to edit into Unity, in "Game Logic". Using the data type UnityEngine.UI.Text:
     [SerializeField] Text textComponent;
     [SerializeField] State startingState;
 
@@ -818,19 +820,33 @@ public class GameLogic : MonoBehaviour
     private void ManageState()
     {
         State[] nextStates = state.GetNextStates();
+        string stateName = state.GetStateName();
 
-        // If the player types "1", "2", or "3" in their keyboard:
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        // If the player is close to a game over or winning the game:
+        if (stateName.Equals("Sleep") || stateName.Equals("HitemWithHead") || stateName.Equals("RushToExit") || 
+            stateName.Equals("ContinueExploring") || stateName.Equals("ConnectIntoTheMatrix"))
         {
-            state = nextStates[0];
+
+            // If the player hits the "enter" key:
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                state = nextStates[0];
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
+
+        // If the player is in a normal state:
+        else
         {
-            state = nextStates[1];
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            state = nextStates[2];
+
+            // If the player types "1" or "2" in their keyboard:
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                state = nextStates[0];
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                state = nextStates[1];
+            }
         }
 
         // Updates the next state:
@@ -841,9 +857,42 @@ public class GameLogic : MonoBehaviour
 
 The method `ManageState()`, which is called once per frame in `Update()`, updates the `state` variable by accessing the `nextStates` array, that's being currently held in the scriptable object of that state.
 
-If the player presses `1`, `2`, or `3`, it goes to that state.
+If the player presses `1`, or `2`, it goes to that state.
 
-Currently, the game has a limitation of 3 routes per state, using this logic.
+I also created a condition to check if the state names are `Sleep`, `HitemWithHead`, `RushToExit`, `ContinueExploring`, or `ConnectIntoTheMatrix`, because these states, in my game, lead to game over and the good ending. If the player is in one of these states, they have to hit `Enter` instead of `1` or `2`.
+
+To get the name of a `State`, I created a getter called `GetStateName()` in `State.cs`, which returns the property `Object.name`, a `string` with the name of the `State`:
+
+```cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu(menuName = "State")] // Creates a "State" option in "Create", in Assets.
+public class State : ScriptableObject
+{
+    [TextArea(20, 30)] [SerializeField] string storyText;
+    [SerializeField] State[] nextStates; // Storying the next states. The contents of this array will have access to storyText.
+
+    // Getters:
+    public string GetStateStory()
+    {
+        return storyText;
+    }
+    public State[] GetNextStates()
+    {
+        return nextStates;
+    }
+
+    // Added this getter:
+    public string GetStateName()
+    {
+        return name;
+    }
+}
+```
+
+I also changed the `StartingState` scriptable object to `InsideTheCultShop`. But again, all of the changes, the source code, the objects, and other assets can be found [in the game's GitHub repository](https://github.com/gagibran/wizards-of-oslam).
 
 When hit play, when hitting `1` we get:
 
