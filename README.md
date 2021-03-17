@@ -39,6 +39,8 @@ Since Unity projects are too large to be stored in GitHub, I will only keep this
     - [Linking the scriptable object to a variable](#linking-the-scriptable-object-to-a-variable)
     - [Storing the next states](#storing-the-next-states)
     - [Managing next states](#managing-next-states)
+    - [Organizing state files](#organizing-state-files)
+    - [TextMesh Pro and polish](#textmesh-pro-and-polish)
 - [Differences between C# and Java](#differences-between-c-and-java)
     - [C# naming conventions](#c-naming-conventions)
     - [Namespaces](#namespaces)
@@ -903,6 +905,85 @@ When hit play, when hitting `1` we get:
 It's important to write our game and design the various states that it has beforehand.
 
 A nice tool to create a story flow is app.diagrams.net, formerly known as draw.io. It creates a flow chart as a PNG, XML, HTML and some other options. I personally prefer the HTML option.
+
+### Organizing state files
+
+We can create new folders to better organize our assets. Here, it's good practice to store our scripts under a new folder `Assets/Scripts` and our states in a new folder called `Assets/States`.
+
+Here, I also renamed the state files to append their state number at the beginning of the name, to make it more clear which state is which. I also changed `GameLogic.cs`'s if-statement that checks if it's at the end of the game to accommodate the changes:
+
+```cs
+...
+if (stateName.Equals("S7_Sleep") || stateName.Equals("S9_HitemWithHead") || stateName.Equals("S11_RushToTheExit") ||
+    stateName.Equals("S12_ConnectIntoTheMatrix") || stateName.Equals("S13_ContinueExploring"))
+...
+```
+
+In the lesson, they separate the states further into sub folders, but I don't think it's necessary here.
+
+### TextMesh Pro and polish
+
+At this step, we can polish the game, by adding a menu with "New Game", "Manual" etc.
+
+We can also use **TextMesh Pro**, which is a built-in package that deals with text polishing. It can be accessed by going to `Window/textMash Pro`:
+
+![TextMesh Pro](readme-images/textmesh-pro.png)
+
+We can also add packages to our project by accessing the `Package Manager`, also in `Window`, as seen in the picture above. In the `Package Manager`, we can also see which packages are imported to our project, which are available to be updated, and we can install more.
+
+Back to `TextMesh Pro`, we can create new font assets by clicking `Font Asset Creator`. If it's the first time clicking it, it will ask to import TextMesh Pro (TMP) essentials and extras. Just click `Import` for both options and we're set to go.
+
+The creator screen looks like this:
+
+![Font Asset Creator](readme-images/font-asset-creator.png)
+
+We need to feed in a font inside so that it creates an asset from it.
+
+A good place to get fonts is [DaFont.com](https://www.dafont.com/).
+
+I searched for a cyberpunk themed font there and found a nice looking one called **Cyberpunk Is Not Dead** by [Mihajlo Vitezović](https://www.dafont.com/pt/mihajlo-vitezovic.d2945), which will be used for the title of the game, and **Windows Command Prompt**, by [McFood](https://www.dafont.com/mcfood.d4318), which will be used as the story text.
+
+In Unity, we can create a folder called `Assets/Fonts` to store any custom fonts there. Then we just have to drag and drop the font file into this folder (in my case, the files are called `CIND.otf` and `windows_command_prompt.ttf`).
+
+Afterwards, we go into the `Font Asset Creator`, drag and drop the font to `Source Font File`, then click on `Generate Font Atlas`:
+
+![Generate Font](readme-images/generate-font.png)
+
+Once its done generating, we'll see a success message in the output window. We then hit `Save`
+
+![Font Generated](readme-images/font-generated.png)
+
+Now, inside the `Fonts` folder, we have a `<previousName> SDF.asset` file, which is the font converted into asset. In my case, I replaced the whitespace with a underscore and called them `CIND_SDF.asset` and `windows_command_prompt_SDF.asset`.
+
+Now, we right-click on `Canvas`, in the hierarchy menu, an select `UI/TextMesh Pro - Text`
+
+![UI TextMesh Text](readme-images/ui-textmesh-text.png)
+
+A new game object called `Text (TMP)` will be created, which is a text box with the font that we just imported. We can retype the text that we want there and replace it in the game:
+
+![Text TMP Object](readme-images/text-tmp-object.png)
+
+We can delete the `Title Text` object and make this one our new title text. In its `inspector`, we can attach the newly created asset font to the element by dragging and dropping it to `Font Asset` in the `Main Settings`:
+
+![Add Custom Fonts](readme-images/add-custom-font.png)
+
+Since I changed the `Story Text` game object to TMP, I had to make a few changes in `GameLogic.cs` in order to make it work properly.
+
+There, we defined the serialized field `textComponent` to be of type `UnityEngine.UI.Text`, but now, it's of type `TMPro.TextMeshProUGUI`. If we don't make this change, **we won't be able to attach the TMP game object to `Text Component` in the `Game Logic` object:
+
+```cs
+...
+using TMPro;
+
+public class GameLogic : MonoBehaviour
+{
+    [SerializeField] TextMeshProUGUI textComponent;
+...
+```
+
+Now, we can attach a TMP game object in `Text Component`, in `Game Logic`:
+
+![Game Logic With TMP](readme-images/game-logic-with-tmp.png)
 
 ## Differences between C# and Java
 
