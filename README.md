@@ -933,6 +933,8 @@ We can also add packages to our project by accessing the `Package Manager`, also
 
 Back to `TextMesh Pro`, we can create new font assets by clicking `Font Asset Creator`. If it's the first time clicking it, it will ask to import TextMesh Pro (TMP) essentials and extras. Just click `Import` for both options and we're set to go.
 
+A folder called `TextMesh Pro`, with the additional packages will be created inside the `Assets` folder.
+
 The creator screen looks like this:
 
 ![Font Asset Creator](readme-images/font-asset-creator.png)
