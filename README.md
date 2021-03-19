@@ -41,6 +41,7 @@ Since Unity projects are too large to be stored in GitHub, I will only keep this
     - [Managing next states](#managing-next-states)
     - [Organizing state files](#organizing-state-files)
     - [TextMesh Pro and polish](#textmesh-pro-and-polish)
+    - [Publishing the game with WebGL](#publishing-the-game-with-webgl)
 - [Differences between C# and Java](#differences-between-c-and-java)
     - [C# naming conventions](#c-naming-conventions)
     - [Namespaces](#namespaces)
@@ -998,6 +999,164 @@ Most of the naming is in PascalCase.
 [Here](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) is Microsoft's official coding convention.
 
 [Here](https://github.com/ktaranov/naming-convention/blob/master/C%23%20Coding%20Standards%20and%20Naming%20Conventions.md) is a repository from [Konstantin Taranov](https://github.com/ktaranov) that condenses all of the conventions.
+
+Another polish that I will apply to the code here is to get rid of the hard-coded states that we're checking to see if the player needs to hit enter or not.
+
+Instead of checking that by getting the name, we can just check to see if the length of the array with the next states is equal to one, meaning that the player is about to lose or win the game, and they can only go to the game over or good ending screen by pressing `Enter`. So, we replace:
+
+```cs
+...
+string stateName = state.GetStateName();
+if (stateName.Equals("Sleep") || stateName.Equals("HitemWithHead") || stateName.Equals("RushToExit") || 
+    stateName.Equals("ContinueExploring") || stateName.Equals("ConnectIntoTheMatrix"))
+...
+```
+
+With:
+
+```cs
+...
+if (nextStates.Length == 1)
+...
+```
+
+Another nice refactoring that we can apply is including the key codes for `1` and `2` in a for loop:
+
+```cs
+...
+// If the player is in a normal state:
+else
+{
+    for (int i = 0; i < nextStates.Length; i++)
+    {
+
+        // If the player types "1" or "2" in their keyboard:
+        if (Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i))
+        {
+            state = nextStates[i];
+        }
+    }
+}
+...
+```
+
+Breaking this code down: `KeyCode.Alpha1` and `KeyCode.Keypad1` are constants, which equal `49` and `257`, respectively. This means that **every** character on a keyboard is mapped to a constant by `GetKeyDown`.
+
+Thus, logically, `KeyCode.Alpha2`, `KeyCode.Alpha3` and so on (the same applies to `KeyCode.Keypad2` and so on) are the next constants in this sequence, so `50`, `51` etc.
+
+With that being said, we can just sum the current position of the array into the key code to test for (in this case) numbers `1` and `2` on the keyboard.
+
+Since `Update()` is called once every frame, the array will be tested constantly.
+
+Thus, the final `GameLogic.cs` file looks like:
+
+```cs
+using UnityEngine;
+using TMPro;
+
+public class GameLogic : MonoBehaviour
+{
+
+    // Serializing a field (or variable), making it available to edit into Unity, in "Game Logic". Using the data type TMPro.TextMeshProUGUI:
+    [SerializeField] TextMeshProUGUI textComponent;
+    [SerializeField] State startingState;
+
+    // Declaring the current state variable:
+    State state;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Initializing the current state with the starting one.
+        // This has to be done in order to "state" to have a value. In this case, the value comes from the serialized field:
+        state = startingState;
+
+        // In the beginning, state will be the starting state:
+        // Updating the game with this text when we click on the play button:
+        textComponent.text = startingState.GetStateStory();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        ManageState();
+    }
+
+    // Storying the next states of a state within an array:
+    private void ManageState()
+    {
+        State[] nextStates = state.GetNextStates();
+
+        // If the player is close to a game over or winning the game:
+        if (nextStates.Length == 1)
+        {
+
+            // If the player hits the "enter" key:
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                state = nextStates[0];
+            }
+        }
+
+        // If the player is in a normal state:
+        else
+        {
+            for (int i = 0; i < nextStates.Length; i++)
+            {
+
+                // If the player types "1" or "2" in their keyboard:
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i))
+                {
+                    state = nextStates[i];
+                }
+            }
+        }
+
+        // Updates the next state:
+        textComponent.text = state.GetStateStory();
+    }
+}
+```
+
+The last refactoring that I did is linking the game over state and the good ending state to the starting state, if the player wishes to play the game again.
+
+### Publishing the game with WebGL
+
+Here's the [official documentation](https://docs.unity3d.com/Manual/webgl-building.html) on WebGL.
+
+The first step here is to change the aspect ratio from 1920x1080 to 16:9, so it doesn't get stuck **only** in 1080p.
+
+The next step is to go to the `Canvas` game object and, in the inspector, change the `UI Scale Model` from `Constant Pixel Size` to `Scale With Screen Size` and adjust the `Reference Resolution` to 1920x1080, since our game was made in this resolution.
+
+![Scale With Screen Size](readme-images/scale-with-screen-size.png)
+
+Next up, we go to `File` and we select `Build Settings` or just hit `Ctrl + Shift + B`:
+
+![Scale With Screen Size](readme-images/build-settings.png)
+
+In the build window, we can see that our game has currently only one scene selected, `Scenes/SampleScene`. We leave it as it is and select `WebGl`.
+
+We need to click on the `Switch Platform` icon that's on the bottom left, close to the greyed out `Build and Run` button, because by the default, the build is set to create an artifact for Windows, Linux, or Mac.
+
+After selecting `Switch Platform`, some background compilation will be done. After it finishes, we click on `Build and Run`:
+
+![Scale With Screen Size](readme-images/build-and-run-webgl.png)
+
+After building, we can see the artifacts generated inside the folder that we saved in.
+
+We have `Build`, which is the folder where are artifacts are stored, such as
+
+We can choose where the artifact will be saved. I put it on a folder called `Artifacts` in the root directory folder.
+
+The creators of the course are a bit sketchy and provided us with their custom website to publish the game, only for 30 days for free.
+
+Another better option is launch it at [itch.io](https://itch.io/). It's free and the game doesn't vanish after 30 days.
+
+**Important note about [itch.io](https://itch.io/)**: For some reason, the game doesn't fully load if we publish our game with the `Brotli` compression format selected. Thus, we have to change it **before we build** by going to `Player Settings` in the build window, expanding `Publishing Settings` in the `Project Settings` window, and changing the drop-down menu `Compression Format` from `Brotli` to `Gzip`:
+
+![Gzip Compression](readme-images/gzip-compression.png)
+
+The game published on [itch.io]() can be found [here](https://gabrielgibran.itch.io/wizards-of-oslam).
 
 ### Namespaces
 
