@@ -55,6 +55,10 @@ Since Unity projects are too large to be stored in GitHub, I will only keep this
     - [Random number](#random-number)
     - [Returning in void](#returning-in-void)
     - [Access modifiers](#access-modifiers)
+    - [Arrays](#arrays)
+    - [Lists](#lists)
+    - [Working with dates](#working-with-dates)
+    - [Working with text](#working-with-text)
 
 ## Hello, world
 
@@ -988,18 +992,6 @@ Now, we can attach a TMP game object in `Text Component`, in `Game Logic`:
 
 ![Game Logic With TMP](readme-images/game-logic-with-tmp.png)
 
-## Differences between C# and Java
-
-### C# naming conventions
-
-Most of the naming is in PascalCase.
-
-[Here](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/naming-guidelines) is Microsoft's official naming convention for the C# language.
-
-[Here](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) is Microsoft's official coding convention.
-
-[Here](https://github.com/ktaranov/naming-convention/blob/master/C%23%20Coding%20Standards%20and%20Naming%20Conventions.md) is a repository from [Konstantin Taranov](https://github.com/ktaranov) that condenses all of the conventions.
-
 Another polish that I will apply to the code here is to get rid of the hard-coded states that we're checking to see if the player needs to hit enter or not.
 
 Instead of checking that by getting the name, we can just check to see if the length of the array with the next states is equal to one, meaning that the player is about to lose or win the game, and they can only go to the game over or good ending screen by pressing `Enter`. So, we replace:
@@ -1158,6 +1150,18 @@ Another better option is launch it at [itch.io](https://itch.io/). It's free and
 
 The game published on [itch.io]() can be found [here](https://gabrielgibran.itch.io/wizards-of-oslam).
 
+## Differences between C# and Java
+
+### C# naming conventions
+
+Most of the naming is in PascalCase.
+
+[Here](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/naming-guidelines) is Microsoft's official naming convention for the C# language.
+
+[Here](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) is Microsoft's official coding convention.
+
+[Here](https://github.com/ktaranov/naming-convention/blob/master/C%23%20Coding%20Standards%20and%20Naming%20Conventions.md) is a repository from [Konstantin Taranov](https://github.com/ktaranov) that condenses all of the conventions.
+
 ### Namespaces
 
 They are containers for related classes.
@@ -1281,6 +1285,8 @@ Which prints `a`'s elements joined by a comma:
 We also have the `Split()` method, which returns an array of elements separated by the argument passed into the method, of the original string:
 
 ```cs
+using System;
+
 static void GetMax()
     {
         Console.WriteLine("Enter numbers separated by comma:");
@@ -1708,3 +1714,521 @@ static void ExerciseThree()
 ### Access modifiers
 
 If we don't specify one, methods are `public` by default.
+
+### Arrays
+
+We have multi-dimension arrays in C#, they are rectangular  and jagged arrays.
+
+The rectangular arrays (like matrices):
+
+```cs
+int[,] matrix = new int[3, 5]; // Uninitialized 3x5.
+
+int [,] anotherMatrix = new[3, 4]
+{
+    { 1, 2, 3, 4, 5 },
+    { 6, 7, 8, 9, 10 },
+    { 11, 12, 13, 14, 15 }
+}; // Initialized 3x5.
+
+// We can also create them with var:
+var oneMoreMatrix = new string[2, 2];
+
+// We can also omit the dimension called by new:
+var Matrix2D = new int[,]
+{
+    { 1, 2, 3, 4 },
+    { 2, 3, 4, 5 },
+    { 1, 1, 1, 1 },
+    { 0, 0, 0, 0 },
+}
+```
+
+We can, of course, create arrays with more dimensions, like 3 or 4:
+
+```cs
+int [,,] colors = new int [3, 5, 4]; // var also works.
+```
+
+To access the elements of arrays, we can use:
+
+```cs
+Console.WriteLine(colors[0, 0, 0]); // Prints out the element a000.
+```
+
+Jagged arrays are array of arrays. So, instead of declaring an array with multiple dimensions, we declare a top-level array.
+
+Each element of this top-level array is an array within itself. We fill this elements with other arrays:
+
+```cs
+int[3][] jagged = new int[3][]; // Jagged array with three rows.
+
+// Filling the jagged array's columns:
+jagged[0] = new int[6];
+jagged[0] = new int[2];
+jagged[0] = new int[1];
+
+// var also works here as well:
+
+var anotherJagged = new int[5][];
+```
+
+This array looks like this:
+
+![Jagged Array](readme-images/jagged-array.png)
+
+### Lists
+
+Mutable arrays. They belong to the `System.Collections.Generic` namespace. We learn more about generics in the advanced course.
+
+Their syntax:
+
+```cs
+using System.Collections.Generic;
+
+namespace ArraysAndLists
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<int> list = new List<int>(); // Uninitialized.
+            List<int> listTwo = new List<int>() { 1, 2, 3, 4 }; // Initialized.
+            var listThree = new List<int>(); // With var.
+        }
+    }
+}
+```
+
+We also have `Add()`, `IndexOf()`, `RemoveAt()`, `AddRange()`, `Size`, and so on...
+
+To access the length of a generic list, we use the `Count` property.
+
+**Important**: In C#, we're not allowed to modify a collection inside a foreach-loop. Thus, this is forbidden:
+
+```cs
+using System.Collections.Generic;
+
+namespace ArraysAndLists
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<int> numbers = new List<int>() { 1, 2, 3 };
+            foreach (var number in numbers) {
+                numbers.Remove(number);
+            }
+        }
+    }
+}
+```
+
+This throws a `InvalidOperationException`.
+
+We need to use a normal for-loop for it:
+
+```cs
+using System.Collections.Generic;
+
+namespace ArraysAndLists
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<int> numbers = new List<int>() { 1, 2, 3 };
+            for (int i = 0; i < numbers.Count; i++)
+            {
+                numbers.Remove(numbers[i]);
+            }
+        }
+    }
+}
+```
+
+### Working with dates
+
+We have a read-only structure defined in `System` called `DateTime` to work with dates and time.
+
+Thus, we can instantiate `DateTime` as an object with its multiple overloaded constructors, allowing us to specify days, months, weeks, hours, minutes, and so on.
+
+With these overloads, we can be as specific as we want to:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var dateTime = new DateTime(2021, 3, 21); // Year, month, day.
+        }
+    }
+}
+```
+
+We can get the system's clock with the static property `Now`:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+           Console.WriteLine(DateTime.Now);
+        }
+    }
+}
+```
+
+Which outputs:
+
+```
+21/03/2021 17:00:00
+```
+
+We can get specific elements of our date-time, like hour, minute, seconds, milliseconds, day, year, and month. We just have to use their respective properties:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var now = DateTime.Now;
+            Console.WriteLine(now.Millisecond);
+            Console.WriteLine(now.Second);
+            Console.WriteLine(now.Minute);
+            Console.WriteLine(now.Hour);
+            Console.WriteLine(now.Day);
+            Console.WriteLine(now.Month);
+            Console.WriteLine(now.Year);
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+164
+58
+3
+17
+21
+3
+2021
+```
+
+We can add values to a `DateTime` object with their `Add` methods, such as `AddYears()`, `AddSeconds()`, and so on...
+
+**These changes are no in-place, meaning that the object won't get modified.**
+
+Example:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var now = DateTime.Now;
+            Console.WriteLine(now.AddYears(2021)); // Doesn't modify "now".
+            Console.WriteLine(now); // Still prints 2021.
+        }
+    }
+}
+```
+
+Prints:
+
+```
+21/03/4042 17:08:18
+21/03/2021 17:08:18
+```
+
+We can convert these objects to a string by using their converter methods, such as `ToString()`, `ToLongDateString()`, `To ShortDateString()`, `ToLongTimeString()`, or `ToShortTimeString()`. Here are the differences:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var now = DateTime.Now;
+            Console.WriteLine(now.ToLongDateString());
+            Console.WriteLine(now.ToShortDateString());
+            Console.WriteLine(now.ToLongTimeString());
+            Console.WriteLine(now.ToShortTimeString());
+            Console.WriteLine(now.ToString());
+        }
+    }
+}
+```
+
+Prints:
+
+```
+domingo, 21 de março de 2021
+21/03/2021
+17:11:34
+17:11
+21/03/2021 17:11:34
+```
+
+Since my system is set to Portuguese, the `LongTimeString()` method returned it in Portuguese.
+
+We also format specifiers, to print the date-time object in a certain standard. We pass it as a parameter of `ToString()`. For example:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var now = DateTime.Now;
+            Console.WriteLine(now.ToString("yyyy-MM-dd"));
+            Console.WriteLine(now.ToString("yyyy-MM-dd-HH:mm"));
+        }
+    }
+}
+```
+
+Prints
+
+```
+2021-03-21
+2021-03-21-17:17
+```
+
+A full list of specifiers can be found in the [official documentation]((https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings#standard-format-specifiers)).
+
+We also have a `TimeSpan` structure, which represents a length of time. There are three ways of creating a `TimeSpan` object:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var timeSpan = new TimeSpan(1, 2, 3); // 1 hour, 2 minutes, and 3 seconds.
+            var secondTimeSpan = TimeSpan.FromHours(1); // 1 hour, 0 minutes, and 0 seconds.
+
+            // Creating a TimeSpan by subtracting two DateTime objects:
+            var start = DateTime.Now;
+            var end = DateTime.Now.AddMinutes(2);
+            var duration = end - start;
+
+            // Print outs:
+            Console.WriteLine(timeSpan);
+            Console.WriteLine(secondTimeSpan);
+            Console.WriteLine(duration);
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+01:02:03
+01:00:00
+00:02:00.0010927
+```
+
+As we can see, in the second way, we can call these static methods, such as `FromHours()`, `FromMinutes()`, `FromSeconds()`, and so on, to make all the other measurements of time equals zero.
+
+The first way has overloaded constructors that allows us to be as specific as we can.
+
+The third way involves doing operations with `DateTime` objects. They result in a `TimeSpan`.
+
+There are some useful properties that come in pairs in a `TimeSpan` object, such as `Minutes`, `TotalMinutes`, `Hours`, `TotalHours`, and so on.
+
+The difference between the members of a pair is: one prints the actual measurement of time that our `TimeSpan` has, such as `2` minutes (for `Minutes`) and, the other, prints the total measurement of time that our object has. Example:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var timeSpan = new TimeSpan(1, 2, 3);
+            Console.WriteLine(timeSpan.Milliseconds);
+            Console.WriteLine(timeSpan.TotalMilliseconds);
+        }
+    }
+}
+```
+
+Prints:
+
+```
+0
+3723000
+```
+
+Because our object was created with zero milliseconds (we just used hours, minutes, and seconds in the constructor), but the total milliseconds of 1 hour, 2 minutes, and 3 seconds is 3,723,000 ms.
+
+A `TimeSpan` is also read-only, so, similarly to `DateTime`, we have the methods `Add()` and `Subtract()`:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var timeSpan = new TimeSpan(1, 2, 3);
+            Console.WriteLine(timeSpan);
+            Console.WriteLine(timeSpan.Add(TimeSpan.FromSeconds(2)));
+            Console.WriteLine(timeSpan.Subtract(TimeSpan.FromSeconds(5)));
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+01:02:03
+01:02:05
+01:01:58
+```
+
+We also have conversion methods, such as `ToString()`, and a static parsing method, to convert a string into a `TimeSpan`:
+
+```cs
+using System;
+
+namespace WorkingWithDates
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var timeSpan = new TimeSpan(1, 2, 3);
+            Console.WriteLine(timeSpan.ToString()); // This is redundant here, because Console.WriteLine() automatically converts its parameter to a string.
+            Console.WriteLine(TimeSpan.Parse("01:02:03"));
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+01:02:03
+01:02:05
+01:01:58
+```
+
+### Working with text
+
+In C# we also have `ToUpper()`, `ToLower()`, `Trim()`, `IndexOf()`, `LastIndexOf()`, `Substring()` (to create a string from another one), `Replace()`, `IsNullOrEmpty()`, and `IsNullOrWhiteSpace`.
+
+Since strings are immutable, they return a different string when called.
+
+**Important**: We don't need to use `string.Format()` in `Console.WriteLine()`, we can just specify the placeholders and arguments in `Console.WriteLine()` directly.
+
+Reminder that `ToString()` accepts format specifiers, such as `"C"`, for currency. We also have the specifier, level: `"C0"` for zero decimal points, `"C1"` for one etc.
+
+Common specifiers:
+
+| **Format Specifier** | **Description** | **Example**        |
+|----------------------|-----------------|--------------------|
+| **c** or **C**      | Currency        | 123456 (C) -> $123,456 |
+| **d** or **D**      | Decimal        | 1234 (D6) -> 001234 |
+| **e** or **E**      | Exponential        | 1052.32442 (E) -> 1.05232442E+003 |
+| **f** or **F**      | Fixed Point        | 1234.567 (F1) -> 1234.5 |
+| **x** or **X**      | Hexadecimal        | 255 (X) -> FF |
+
+Some examples:
+
+```cs
+using System;
+
+namespace WorkingWithText
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var fullName = "Gabriel Gibran ";
+            Console.WriteLine("Trim '{0}'", fullName.Trim()); // Removes whitespace on the beginning and at the end.
+            Console.WriteLine("ToUpper '{0}'", fullName.ToUpper());
+            Console.WriteLine("ToLower '{0}'", fullName.ToLower());
+            Console.WriteLine("IndexOf '{0}'", fullName.ToLower());
+
+            // Creating a substring:
+            var index = fullName.IndexOf(' '); // Returns the first instance of a whitespace.
+            var firstName = fullName.Substring(0, index); // Creates a substring from the 0th position until the first whitespace. In other words: the first name.
+            var lastName = fullName.Substring(index + 1).Trim(); // Creates a substring from after the whitespace until the end. In other words: the last name.
+
+            // Creating a substring from Split():
+            Console.WriteLine(fullName.Split(' ')[1]); // Split() returns an array.
+
+            // Replace:
+            Console.WriteLine(fullName.Replace("Gabriel", "Gab"));
+
+            // Null strings:
+            if (String.IsNullOrEmpty(" ")) // Works for null or "".
+            {
+                Console.WriteLine("The string is empty or null.");
+            }
+
+            // To detect an empty string with whitespaces we can either do a trim, or use the better and newer method:
+            if (String.IsNullOrWhiteSpace(" "))
+            {
+                Console.WriteLine("The string is empty, null, or filled with whitespaces.");
+            }
+
+            // Using format strings:
+            double price = 12.45;
+            Console.WriteLine(price.ToString("C"));
+            Console.WriteLine(price.ToString("C0")); // Gets rid of the decimal points.
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+Trim 'Gabriel Gibran'
+ToUpper 'GABRIEL GIBRAN '
+ToLower 'gabriel gibran '
+IndexOf 'gabriel gibran '
+Gibran
+Gab Gibran
+The string is empty, null, or filled with whitespaces.
+R$ 12,45
+R$ 12
+```
+
+Since my system is set to Brazil and it's using the Brazilian currency format, it displayed it as BRL.
