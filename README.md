@@ -2,7 +2,7 @@
 
 A repository aimed to store the code and the notes generated from the lessons of [the course](https://www.udemy.com/course/unitycourse/).
 
-Refer to the [README.md](https://github.com/gagibran/csharp-unity-courses/blob/dev/csharp-notes-and-exercises/README.md) in [csharp-notes-and-exercises](https://github.com/gagibran/csharp-unity-courses/tree/dev/csharp-notes-and-exercises) for C# theory.
+Refer to the [README.md](https://github.com/gagibran/learning-csharp-and-unity/blob/dev/csharp-notes-and-exercises/README.md) in [csharp-notes-and-exercises](https://github.com/gagibran/learning-csharp-and-unity/tree/dev/csharp-notes-and-exercises) for C# theory.
 
 Since Unity projects are too large to be stored in GitHub, I will only keep this README.<span>md</span>, the LICENSE, and .gitignore here.
 

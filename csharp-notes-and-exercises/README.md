@@ -2,9 +2,9 @@
 
 A repository aimed to store the code and the notes generated from the lessons of the courses
 
-I will not make a detailed dive into Object Oriented Programming, because this has already been discussed in my [learning Java repository](https://github.com/gagibran/udemy-java-the-complete-java-developer-course).
+I will not make a detailed dive into Object Oriented Programming, because this has already been discussed in my [learning Java repository](https://github.com/gagibran/learning-java).
 
-Refer to that [README.md](https://github.com/gagibran/udemy-java-the-complete-java-developer-course/blob/dev/README.md) to know more about OOP.
+Refer to that [README.md](https://github.com/gagibran/learning-java/blob/dev/README.md) to know more about OOP.
 
 I will only list the main differences between C# and Java.
 
