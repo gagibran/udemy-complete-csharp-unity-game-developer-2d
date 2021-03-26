@@ -35,6 +35,7 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Working with dates](#working-with-dates)
 - [Working with text](#working-with-text)
 - [Default values](#default-values)
+- [Working with files](#working-with-files)
 
 ## C# naming conventions
 
@@ -1243,3 +1244,162 @@ public static string Summarize(string text, int length = 20)
 ```
 
 We can see here that `length` already has a pre-defined value. Thus, when we call this method, we don't have to pass in a length if we want to use the default as 20, we can just pass the text.
+
+## Working with files
+
+We can use the [System.IO](https://docs.microsoft.com/en-us/dotnet/api/system.io?view=net-5.0) namespace to work with files.
+
+Some useful classes within it are `File` and `FileInfo`. They have methods for creating, deleting, moving, and deleting files.
+
+The difference between these two classes is that `FileInfo` provides instance methods, thus, used for a lot of operation and manipulation, whereas `File` provides static methods, used for a small number of operation.
+
+Every time we manipulate files with the static methods, some security checks are done within the OS to make sure that the current user has access to the file, affecting the performance of the operation.
+
+That's why it's more efficient to use `FileInfo` if we need to do a lot of operations with files.
+
+Some methods include: `Create()`, `Copy()` (`CopyTo()` in `FileInfo`), `Delete()`, `Exists()` (it's a property, called `Exists`, in `FileInfo`), `GetAttributes()`, `Move()`, `ReadAllText()` (only available in `File`), `ReadAllByte()` which returns the binary of a file, and many more.
+
+We also have `Directory` and `DirectoryInfo`, which work similarly to `File` and `FileInfo`, but the deal with directories.
+
+Some useful methods: `CreateDirectory()`, `Delete()`, `Exists()`, `GetCurrentDirectory()`, `GetFiles()`, `Move()`, and `GetLogicalDrives()`, which returns the logical drives of a hard-disk, like `C:\`, `D:\` etc., and many more.
+
+We also have the `Path` class, that provides methods to work with a string that contains a file or directory path information.
+
+Some useful methods: `GetDirectoryName()`, `GetFileName()`, `GetExtension()`, `GetTempPath()`, which returns the path of a user's temporary folder, and many more.
+
+Some examples for `File` and `FileInfo`:
+
+```cs
+using System;
+using System.IO;
+
+namespace WorkingWithFiles
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var path = @"C:\Users\gibra\Desktop\Projetos\wizards-of-oslam\readme-images\game.png";
+            var pathDest = @"C:\Users\gibra\Desktop\Projetos\learning-csharp-and-unity\csharp-notes-and-exercises\WorkingWithFiles\picture-copied.png";
+
+            // File:
+            File.Copy(path, pathDest);
+            if (File.Exists(path))
+            {
+                Console.WriteLine("The file is there.");
+            }
+            else
+            {
+                Console.WriteLine("The file isn't there.");
+
+            }
+            File.Delete(pathDest);
+            if (File.Exists(path))
+            {
+                Console.WriteLine("The file is there.");
+            }
+            else
+            {
+                Console.WriteLine("The file isn't there.");
+            }
+            File.Copy(path, pathDest);
+            Console.WriteLine(File.ReadAllText(pathDest));
+            Console.WriteLine(File.ReadAllBytes(pathDest));
+            File.Delete(pathDest);
+            Console.WriteLine();
+
+            // FileInfo:
+            var fileInfo = new FileInfo(path);
+            var newFileInfo = fileInfo.CopyTo(pathDest);
+            if (newFileInfo.Exists)
+            {
+                Console.WriteLine("The file is there.");
+            }
+            else
+            {
+                Console.WriteLine("The file isn't there.");
+
+            }
+            // fileInfo.Delete(); // Deletes the original.
+            newFileInfo.Delete();
+            if (newFileInfo.Exists)
+            {
+                Console.WriteLine("The file is there.");
+            }
+            else
+            {
+                Console.WriteLine("The file isn't there.");
+
+            }
+
+        }
+    }
+}
+```
+
+Some examples for `Directory` and `DirectoryInfo`:
+
+```cs
+using System;
+using System.IO;
+
+namespace WorkingWithFiles
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var path = @"C:\Users\gibra\Desktop\Projetos\wizards-of-oslam\readme-images\game.png";
+            var pathTempDir = @"C:\temp\temp_dir";
+
+            // Directory:
+            Directory.CreateDirectory(pathTempDir);
+            File.Copy(path, pathTempDir + @"\pic.png");
+            Directory.GetFiles(pathTempDir);
+            Directory.GetFiles(pathTempDir, "*.png");
+            string[] files = Directory.GetFiles(@"C:\Users\gibra\Desktop\Projetos", "*.*", SearchOption.AllDirectories); // Finds all files in the current directory and its children.
+            foreach (var file in files)
+            {
+                Console.WriteLine(file);
+            }
+            string[] directories = Directory.GetDirectories(@"C:\Users\gibra\Desktop\Projetos", "*.*", SearchOption.AllDirectories); // Finds all directories in the current directory and its children.
+            foreach (var directory in directories)
+            {
+                Console.WriteLine(directory);
+            }
+            Directory.Exists(pathTempDir);
+            File.Delete(pathTempDir + @"\pic.png");
+            Directory.Delete(pathTempDir);
+            Console.WriteLine();
+
+            // DirectoryInfo:
+            var directoryInfo = new DirectoryInfo(@"C:\Users\gibra\Desktop\Projetos");
+            // Etc...
+        }
+    }
+}
+```
+
+Some examples for `File`:
+
+```cs
+using System;
+using System.IO;
+
+namespace WorkingWithFiles
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var path = @"C:\Users\gibra\Desktop\Projetos\wizards-of-oslam\readme-images\game.png";
+
+            // Path:
+            Console.WriteLine(Path.GetExtension(path)); // Returns ".png".
+            Console.WriteLine(Path.GetFileName(path)); // Returns "game.png".
+            Console.WriteLine(Path.GetFileNameWithoutExtension(path)); // Returns "game".
+            Console.WriteLine(Path.GetDirectoryName(path)); // Returns "C:\Users\gibra\Desktop\Projetos\wizards-of-oslam\readme-images".
+        }
+    }
+}
+```
