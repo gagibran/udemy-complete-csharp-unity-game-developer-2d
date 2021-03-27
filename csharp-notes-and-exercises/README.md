@@ -36,10 +36,16 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Working with text](#working-with-text)
 - [Default values](#default-values)
 - [Working with files](#working-with-files)
+- [Calling a constructor from a overloaded one](#calling-a-constructor-from-a-overloaded-one)
+- [Parameter modifiers](#parameter-modifiers)
+    - [Params](#params)
+    - [Ref](#ref)
+    - [Out](#out)
+- [Read-only fields](#read-only-fields)
+- [Properties](#properties)
+- [Indexers](#indexers)
 
 ## C# naming conventions
-
-Most of the naming is in PascalCase.
 
 [Here](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/naming-guidelines) is Microsoft's official naming convention for the C# language.
 
@@ -47,11 +53,17 @@ Most of the naming is in PascalCase.
 
 [Here](https://github.com/ktaranov/naming-convention/blob/master/C%23%20Coding%20Standards%20and%20Naming%20Conventions.md) is a repository from [Konstantin Taranov](https://github.com/ktaranov) that condenses all of the conventions.
 
+[Namespaces](#namespaces), classes, [properties](#properties), methods, and fields are declared in PascalCase.
+
+Local variables, parameters, and constants use camelCase.
+
+Private fields use camelCase prefixed with an underscore. Example: `private string _customerName;`
+
+The [var](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/var) keyword, or **implicit typing**, should be used when the data type in a variable declaration is obvious.
+
 ## Namespaces
 
-They are containers for related classes.
-
-They are declared using PascalCase:
+They are containers for related classes:
 
 ```cs
 namespace HelloWorld
@@ -157,6 +169,21 @@ This prints:
 
 ```
 Number: 2.
+```
+
+We can also use [string interpolation](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated) to pass variables directly into strings. We use the dollar sign (`$`) to achieve this:
+
+```cs
+int a = 2;
+int b = 342;
+int c = 2786;
+Console.WriteLine($"a is {a}, b is {b}, and c is {c}.");
+```
+
+This prints:
+
+```
+a is 2, b is 342, and c is 2786.
 ```
 
 We can also join elements from an array or list using the `Join()` method, also in the `String` class:
@@ -1403,3 +1430,783 @@ namespace WorkingWithFiles
     }
 }
 ```
+
+## Calling a constructor from a overloaded one
+
+In C#, we can call a constructor from another one by adding a colon (`:`) followed by the `this()` keyword with the parameters inside of its parenthesis.
+
+We put `this()` right after the constructor's declaration, before their curly brackets:
+
+```cs
+using System.Collections.Generic;
+
+namespace Classes
+{
+    public class Customer
+    {
+        // Fields:
+        private int _id;
+        private string _name;
+        private List<Order> _orders;
+
+        // Default constructor:
+        public Customer()
+        {
+            _orders = new List<Order>();
+        }
+
+        // Constructors:
+        public Customer(int id) : this() // Calls the parameterless constructor.
+        {
+            _id = id;
+        }
+
+        public Customer(int id, string name)
+            : this(id) // Calls the "Id" constructor ("this()" can be put here as well).
+        {
+            _name = name;
+        }
+    }
+}
+```
+
+`Order` is just an empty class:
+
+```cs
+namespace Classes
+{
+    public class Order
+    {
+    }
+}
+```
+
+This is definitely not a good practice, as it makes the workflow complicated and the code not so readable.
+
+We have **object initializers** in C#, which is a quick and not messy way to initialize only the fields that we want, without have to creating multiple overloaded constructors.
+
+Using this syntax, we actually don't have create any constructors in our class, only when they are really needed, as it's the case of initializing a list, for example.
+
+An example:
+
+```cs
+using System.Collections.Generic;
+
+namespace Classes
+{
+    public class Customer
+    {
+        // Fields:
+        public int Id;
+        public string Name;
+        private List<Order> _orders;
+
+        // Constructor to initialize the list:
+        public Customer()
+        {
+            _orders = new List<Order>();
+        }
+
+        // We don't need any other constructors here. See how "Name" and "Id" are initialized in "Main()".
+    }
+}
+```
+
+The `Main()` method:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            // Initializing the public fields that don't have constructors.
+            var customer = new Customer() { Name = "Gabriel", Id = 3124234 };
+        }
+    }
+}
+```
+
+In this example I set the fields as `public` so that they can actually be initialized using this syntax without the need of setters.
+
+We can see that only `List<Order> Orders` is being initialized here, otherwise it would be null.
+
+Some developers actually prefer to actually initialize this fields that need initialization in their declaration. For example:
+
+```cs
+using System.Collections.Generic;
+
+namespace Classes
+{
+    public class Customer
+    {
+        // Fields:
+        public int Id;
+        public string Name;
+        private List<Order> _orders = new List<Order>();
+    }
+}
+```
+
+Here we don't really need any more constructors.
+
+## Parameter modifiers
+
+In C# we have the concept of modifying parameters.
+
+### Params
+
+This modifier can be used by writing the `params` keyword.
+
+This means that we can pass any number of parameters into a method that takes in an array or a list, without having actually creating a new array or list.
+
+Example, for an add operation in a `Calculator` class (method created without using `Sum`, from `System.Linq`):
+
+```cs
+namespace Classes
+{
+    public class Calculator
+    {
+        public static double Add(double[] numbers)
+        {
+            double sum = 0;
+            foreach (var number in numbers)
+            {
+                sum += number;
+            }
+            return sum;
+        }
+    }
+}
+```
+
+In `Main()`, we would normally pass a array of numbers to this method:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(Calculator.Add(new double[] { 1, 2, 3, 4 })); // This prints out "10".
+        }
+    }
+}
+```
+
+Instead of creating the `double` array, we can instead use the `params` keyword when declaring the `Add()` method:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(params string[] args)
+        {
+            Console.WriteLine(Calculator.Add(new double[] { 1, 2, 3, 4 }));
+        }
+    }
+}
+```
+
+Now, in `Main()`, we can simply pass in any numbers that we want as argument, because this method expects any number of parameters when called:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(Calculator.Add(new double[] { 1, 2, 3, 4 })); // This one still works and prints out "10".
+            Console.WriteLine(Calculator.Add(1, 2, 3, 4)); // Also prints out "10".
+        }
+    }
+}
+```
+
+Note that we can still create a new array to pass in as an argument if we wanted to [*args](https://realpython.com/python-kwargs-and-args/) in Python.
+
+### Ref
+
+It's are not really used. In fact, it should be actually avoided, as it is code smells.
+
+It is used to pass values as reference to a method. For example:
+
+```cs
+namespace Classes
+{
+    public class Calculator
+    {
+        public static void AddTwo(double a)
+        {
+            a += 2;
+        }
+    }
+}
+```
+
+And `Main()`:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var a = 2.4;
+            Calculator.AddTwo(a);
+            Console.WriteLine(a); // "a" will still be 2.4, because a copy of it is passed to the method. The original variable remains intact.
+        }
+    }
+}
+```
+
+Since `a` is passed by value, not by reference, the original `a` won't be changed.
+
+We can use the `ref` keyword in the method declaration to make `a` be passed as a reference:
+
+```cs
+namespace Classes
+{
+    public class Calculator
+    {
+
+        // Changes the passed "a" directly in its memory location.
+        public static void AddTwo(ref double a)
+        {
+            a += 2;
+        }
+    }
+}
+```
+
+In `Main()`:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var a = 2.4;
+            Calculator.AddTwo(ref a); // We need to used the "ref" keyword here.
+            Console.WriteLine(a); // Now "a" has been changed, because it's value has been changed in it's memory address.
+        }
+    }
+}
+```
+
+### Out
+
+We can actually assign a value to one or multiple variables using this modifier:
+
+```cs
+namespace Classes
+{
+    public class Calculator
+    {
+        public static void AssignValues(out double valueOne, out double valueTwo)
+        {
+            valueOne = 2;
+            valueTwo = 3;
+        }
+    }
+}
+```
+
+In `Main()`:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var a = 2.4;
+            var b = 3.4;
+            Calculator.AssignValues(out a, out b);
+            Console.WriteLine($"a: {a}, b: {b}."); // "a" will be 2 and "b" will be 3.
+        }
+    }
+}
+```
+
+This is also not good practice and this modifier should be avoided.
+
+One place that this is used is in the `TryParse()` methods For example, if we try to parse an invalid string into an integer, this method returns a boolean stating if the conversion was successful or not.
+
+Since it returns a boolean, the actual conversion is done by using an `out` parameter. For example:
+
+```cs
+...
+int number;
+int.TryParse("abc", out number); // Tries to parse "abc" and store it into the "number" variable. Returns "false", since it can't.
+int.TryParse("231", out number); // This one works and returns "true".
+...
+```
+
+Here, we're not only returning a boolean, but we're also modifying `number`.
+
+## Read-only fields
+
+We can declare a field with the `readonly` modifier, to make sure that thi field is **only assigned once**.
+
+Thus, it doesn't matter if a getter tries to change it's value later on, it won't be changed.
+
+This is used to improve robustness in our code. We can keep track of our fields' values like that.
+
+Example:
+
+```cs
+using System.Collections.Generic;
+
+namespace Classes
+{
+    public class Customer
+    {
+        private int _id;
+        private string _name;
+        private List<Order> _orders = new List<Order>();
+
+        public Customer(int id)
+        {
+            _id = id;
+        }
+
+        public Customer(int id, string name) : this(id)
+        {
+            _name = name;
+        }
+
+        public void AddOrder(Order order)
+        {
+            _orders.Add(order);
+        }
+
+        public int GetAmountOfOrders()
+        {
+            return _orders.Count;
+        }
+
+        // This method is not good, because it's resetting our orders:
+        public void Promote()
+        {
+            _orders = new List<Order>();
+        }
+    }
+}
+```
+
+In `Main()`:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var customer = new Customer(1234);
+            customer.AddOrder(new Order());
+            customer.AddOrder(new Order());
+            customer.AddOrder(new Order());
+            Console.WriteLine(customer.GetAmountOfOrders()); // Here we have three orders for this customer.
+            customer.Promote(); // Here we reinitialized the orders to a new object.
+            Console.WriteLine(customer.GetAmountOfOrders()); // Since we reinitialized orders, we lost all of its contents. Thus, this prints 0.
+
+        }
+    }
+}
+```
+
+This prints out:
+
+```
+3
+0
+```
+
+As we can see, our `Orders` field should not be touched by any part of the code, otherwise we lose track of the all the orders from a customer.
+
+To prevent this, we can declare the field as `readonly`:
+
+```cs
+...
+private readonly List<Order> _orders = new List<Order>();
+...
+```
+
+Now, we'll actually get a compile error in the `Promote()` method, stating that:
+
+>A readonly field can only take an assignment in a constructor or at declaration.
+
+```cs
+public void Promote()
+{
+    _orders = new List<Order>(); // This no longer works.
+}
+```
+
+## Access modifiers
+
+Since this was not covered so good in the [Learning Java repository](https://github.com/gagibran/learning-java), I'll put this section here.
+
+We have:
+- Public;
+- Private;
+- Protected;
+- Internal;
+- Protected Internal.
+
+Private and public modifiers are the only ones that are well covered.
+
+Here's the [official documentation](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/access-modifiers) explaining their permissions.
+
+Modifiers improve the encapsulation/information hiding in our code.
+
+## Properties
+
+It's a class member that encapsulates a getter and a setter for a field with less code.
+
+An example of not using properties:
+
+```cs
+using System;
+
+namespace Classes
+{
+    public class Person
+    {
+        private DateTime _birthdate;
+
+        // Getter:
+        public DateTime GetBirthdate()
+        {
+            return _birthdate;
+        }
+
+        // Setter:
+        public void SetBirthdate(DateTime birthdate)
+        {
+            _birthdate = birthdate;
+        }
+    }
+}
+```
+
+The same example using properties:
+
+```cs
+using System;
+
+namespace Classes
+{
+    public class Person
+    {
+        public DateTime _birthdate;
+
+        // Property:
+        public DateTime Birthdate
+        {
+            get { return _birthdate; }
+            set { _birthdate = value; }
+        }
+    }
+}
+```
+
+Here `value` assigns whatever value we pass to this property when it's called.
+
+In `Main()`:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var person = new Person();
+            person.Birthdate = new DateTime(1994, 26, 3);
+            Console.WriteLine(person.Birthdate);
+        }
+    }
+}
+```
+
+Note that we can only call this property because it's `public`. In this case, we have to be smart on which properties should be public and which shouldn't.
+
+If we want the getter and the setter of a property to be accessed outside the class, then the property should be `public`.
+
+We can declare the setter and the getter as private, or any access modifier stronger than the property's own modifier:
+
+```cs
+...
+private set { _birthdate = value; }
+...
+```
+
+Since we don't want any outsiders messing with the Birthdate of a person, we set it to `private`.
+
+We can actually simplify this even further by using an **auto-implemented property**:
+
+```cs
+using System;
+
+namespace Classes
+{
+    public class Person
+    {
+        public DateTime Birthdate{ get; private set; }
+        }
+    }
+}
+```
+
+The code snippet for it is `prop`.
+
+Here, `get` and `set` are implementing `return _birthdate` and `_birthdate = value` respectively and implicitly. The difference is that we didn't even have to create the field `_birthdate`. C# creates it automatically for us inside the `bin\Debug\<dotnet-version>` folder, in the project's directory.
+
+After building our project and compiling the source code, in this `bin\Debug\net5.0` directory (in my case), we can invoke the Visual Studio command `ildasm <ProjectName.dll>` (intermediate language disassembler) in the integrated terminal from Visual Studio (`Ctrl+'`), also known as the `Developer PowerShell`, passing in as an argument the compiled code, or artifact (in my case, `Classes.dll`), to get the IL file. Note that this won't work in a common terminal, it has to be this integrated one from Visual Studio.
+
+In the disassembler, we can see that inside the `Person` class, we have a `BackingField` for `Birthdate`. We also have two methods, `set_Birthdate` and `get_Birthdate`. These have been implemented behind the scenes by CLR:
+
+![IL DASM](../readme-images/il-dasm.png)
+
+If we double click a method, we can see the intermediate language for it.
+
+For `get_Birthdate`:
+
+```
+.method private hidebysig specialname instance valuetype [System.Runtime]System.DateTime 
+        get_Birthdate() cil managed
+{
+  .custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = ( 01 00 00 00 ) 
+  // Code size       7 (0x7)
+  .maxstack  8
+  IL_0000:  ldarg.0
+  IL_0001:  ldfld      valuetype [System.Runtime]System.DateTime Classes.Person::'<Birthdate>k__BackingField'
+  IL_0006:  ret
+} // end of method Person::get_Birthdate
+```
+
+If we check the property `Birthdate` there, we can see that it's simply calling the getter and the setter:
+
+```
+.property instance valuetype [System.Runtime]System.DateTime
+        Birthdate()
+{
+  .get instance valuetype [System.Runtime]System.DateTime Classes.Person::get_Birthdate()
+  .set instance void Classes.Person::set_Birthdate(valuetype [System.Runtime]System.DateTime)
+} // end of property Person::Birthdate
+```
+
+We also have a default constructor, also created automatically for us in `.ctor : void()`:
+
+```
+.method public hidebysig specialname rtspecialname 
+        instance void  .ctor() cil managed
+{
+  // Code size       8 (0x8)
+  .maxstack  8
+  IL_0000:  ldarg.0
+  IL_0001:  call       instance void [System.Runtime]System.Object::.ctor()
+  IL_0006:  nop
+  IL_0007:  ret
+} // end of method Person::.ctor
+```
+
+We can also straight up not implementing a getter or a setter but just omitting the keyword:
+
+```cs
+public DateTime Birthdate{ get; }
+```
+
+Or:
+
+```cs
+public DateTime Birthdate{ set; }
+```
+
+Moving on, if we want to actually create a logic for a getter or a setter, we cannot use auto-implemented properties. For example:
+
+```cs
+using System;
+
+namespace Classes
+{
+    public class Person
+    {
+        public DateTime Birthdate { get; private set; }
+
+        public Person(DateTime birthdate)
+        {
+            Birthdate = birthdate;
+        }
+
+        public int Age
+        {
+            get
+            {
+                TimeSpan timeSinceBirth = DateTime.Today - Birthdate; // Returns a TimeSpan object.
+                return timeSinceBirth.Days / 365; // Returns the days since the birthday in years - the age.
+            }
+        }
+    }
+}
+```
+
+Here we're validating `Age` when its getter is called to get the actual age.
+
+We also didn't declare a setter for the age because it doesn't make sense to set the age of a person in this context.
+
+Since the getter for `Birthdate` is private, we added a constructor to set it's value in a `Person` object's creation.
+
+A best practice here is to **always** put properties that are not auto-implemented after the constructors.
+
+In `Main()`:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var person = new Person(new DateTime(1994, 3, 26));
+            Console.WriteLine(person.Age);
+        }
+    }
+}
+```
+
+## Indexers
+
+An indexer is a way to access elements in a class that represents a list of values.
+
+We can create indexers, just like the ones used to access elements of a list, or an array, for our classes.
+
+Example using a dictionary:
+
+```cs
+using System;
+using System.Collections.Generic;
+
+namespace Classes
+{
+    public class HttpCookie
+    {
+        private readonly Dictionary<string, string> _dictionary = new Dictionary<string, string>();
+        public DateTime Expiry{ get; set; }
+
+        public string this[string key]
+        {
+            get { return _dictionary[key]; }
+            set { _dictionary[key] = value; }
+        }
+
+    }
+}
+```
+
+In `Main()`:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var cookie = new HttpCookie();
+            cookie["name"] = "Gabriel";
+            Console.WriteLine(cookie["name"]); // Prints "Gabriel".
+        }
+    }
+}
+```
+
+In this class, the private read-only field `_dictionary` is a `Dictionary` that maps a value to a key.
+
+`readonly` is used so that we assign values to this dictionary only once.
+
+The indexer of a class is declared by using the `this` keyword instead of a property name. It also carries the type of index that the class will have.
+
+Afterwards, it's just like a property: we declare its getter and setter.
+
+In this case, this indexer is just returning the value of the `_dictionary` for a particular `key`, serving as a wrapper for this dictionary.
+
+Another approach for this would be creating a `SetItem()` and a `GetItem()`:
+
+```cs
+using System;
+using System.Collections.Generic;
+
+namespace Classes
+{
+    public class HttpCookie
+    {
+        private readonly Dictionary<string, string> _dictionary = new Dictionary<string, string>();
+
+        public string GetItem(string key)
+        {
+            return _dictionary[key];
+        }
+
+        public void SetItem(string key, string value)
+        {
+            _dictionary[key] = value;
+        }
+    }
+}
+```
+
+`Main()`:
+
+```cs
+using System;
+
+namespace Classes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var cookie = new HttpCookie();
+            cookie.SetItem("name", "Gabriel");
+            Console.WriteLine(cookie.GetItem("name"));
+        }
+    }
+}
+```
+
+Thus, in this situation, using indexers makes our code cleaner.
