@@ -2270,4 +2270,6 @@ Besides, any inheritance relationship can be translated into composition. For in
 
 So, we make a `Walkable` class, with a `Walk()` method on it. We now make `Person` and `Dog` be composed of `Animal` and `Walkable`, and `Goldfish` will now only be composed of `Animal`. We can even make a `Swimmable` class, with a `Swim()` method on it, and make it compose `Goldfish`.
 
-Thus, we should always favor composition over inheritance.
+With composition, we can also replace the `Animal` class with an `IAnimal` interface.
+
+Thus, we should always favor composition over inheritance, but use inheritance properly if needed.
