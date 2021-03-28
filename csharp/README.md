@@ -44,6 +44,7 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Read-only fields](#read-only-fields)
 - [Properties](#properties)
 - [Indexers](#indexers)
+- [Class coupling](#class-coupling)
 
 ## C# naming conventions
 
@@ -2210,3 +2211,63 @@ namespace Classes
 ```
 
 Thus, in this situation, using indexers makes our code cleaner.
+
+## Class coupling
+
+Coupling is a measurement of how interconnected classes and subsystems are.
+
+It's a way that we determine class dependency throughout our software - how many other classes would be affected if one single class needed to be changed.
+
+If changing one class affect a lot of other classes, the system is **tightly coupled**, and this is very bad practice, because it's very hard to measure the impact of one change.
+
+On the other hand, **loosely coupled** systems are ideal, because the classes are isolated, thus, making it easier to track the effects of changing one subsystem.
+
+To design a loosely coupled system, we need to apply the principles of: encapsulation, independence of classes, and interfaces.
+
+## Inheritance
+
+In C#, we use the colon (`:`) notation to represent an inheritance between to classes.
+
+Just like Java, all classes inherit from the `Object` class.
+
+```cs
+using System;
+
+namespace AssociationBetweenClasses
+{
+    public class Text : PresentationObject // Text inherited PresentationObject.
+    {
+        public double FontSize { get; set; }
+        public string FontName { get; set; }
+
+        public Text(string fontName, double fontSize = 10)
+        {
+            FontSize = fontSize;
+            FontName = fontName;
+        }
+
+        public void AddHyperlink(string url)
+        {
+            Console.WriteLine($"Link added to {url}.");
+        }
+    }
+}
+```
+
+## Composition
+
+Like Java, enables multiple a class to be composed of multiple ones. It's all about a ***has a*** relationship.
+
+We simply create a field or a property of the class that will compose an outer one.
+
+For example, a car has an engine, a truck also has an engine. Thus, we can create a private field `Engine _engine` in both classes. A car and a truck also have wheels, thus, we can create a private field `Wheel _wheel` in both classes.
+
+Truck and car are, thus, composed of wheel and engine. This is better than inheritance, because with inheritance, we can only inherit from one class. Composition, we can "inherit" functionalities from multiple classes.
+
+Inheritance also leads to large hierarchies, meaning that changing one base class can affect multiple ones.
+
+Besides, any inheritance relationship can be translated into composition. For instance, if we create an `Animal` class with methods like `Eat()`, `Sleep()`, and `Walk()`, and make a `Person` and a `Dog`, class inherit from it, this could lead to potential problems, because a `Goldfish` class is an `Animal`, but shouldn't be able to `Walk()`.
+
+So, we make a `Walkable` class, with a `Walk()` method on it. We now make `Person` and `Dog` be composed of `Animal` and `Walkable`, and `Goldfish` will now only be composed of `Animal`. We can even make a `Swimmable` class, with a `Swim()` method on it, and make it compose `Goldfish`.
+
+Thus, we should always favor composition over inheritance.

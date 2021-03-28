@@ -1,4 +1,4 @@
-# Mislav Majdandžić's Pixel Art Master Course - Beginner to Professional/Freelance
+# [Mislav Majdandžić's](https://www.udemy.com/user/mislav-majdandzic/) Pixel Art Master Course - Beginner to Professional/Freelance
 
 This README is aimed to store knowledge and lessons learned from the [course](https://www.udemy.com/course/pixel-art-master-course/).
 
