@@ -29,12 +29,13 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Reference types and value types](#reference-types-and-value-types)
 - [Random number](#random-number)
 - [Returning in void](#returning-in-void)
+- [Parsing arguments to methods](#parsing-arguments-to-methods)
 - [Access modifiers](#access-modifiers)
 - [Arrays](#arrays)
 - [Lists](#lists)
 - [Working with dates](#working-with-dates)
 - [Working with text](#working-with-text)
-- [Default values](#default-values)
+- [Default or optional arguments](#default-or-optional-arguments)
 - [Working with files](#working-with-files)
 - [Calling a constructor from a overloaded one](#calling-a-constructor-from-a-overloaded-one)
 - [Parameter modifiers](#parameter-modifiers)
@@ -45,6 +46,8 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Properties](#properties)
 - [Indexers](#indexers)
 - [Class coupling](#class-coupling)
+- [Inheritance](#inheritance)
+- [Composition](#composition)
 
 ## C# naming conventions
 
@@ -724,9 +727,76 @@ static void ExerciseThree()
     }
 ```
 
+## Parsing arguments to methods
+
+In C#, if we don't remember the order of the parameters of a function we're calling, we can send them in in any order, as long as we remember their names.
+
+From the [official documentation on named arguments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#named-arguments):
+
+```cs
+...
+PrintOrderDetails(orderNum: 31, productName: "Red Mug", sellerName: "Gift Shop");
+PrintOrderDetails(productName: "Red Mug", sellerName: "Gift Shop", orderNum: 31);
+...
+```
+
 ## Access modifiers
 
-If we don't specify one, methods are `public` by default.
+Since this was not covered so good in the [Learning Java repository](https://github.com/gagibran/learning-java), I'll put this section here.
+
+We have:
+- Public;
+- Private;
+- Protected;
+- Internal;
+- Protected internal.
+
+Here's the [official documentation](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/access-modifiers) explaining their permissions.
+
+Modifiers improve the encapsulation/information hiding in our code.
+
+Private and public modifiers are the only ones that are well covered: a public member is accessed everywhere and a private member is only accessible from that class.
+
+If we don't specify one, methods are `public` by default in C#.
+
+A **protected** member is only accessible only from the class and its derived classes. It's often considered a bad practice to use it in C#, but can be used when needed. Example (here I created the classes in the same `.cs` file).
+
+```cs
+using System;
+
+namespace Inheritance
+{
+    public class Customer
+    {
+        protected int Id { get; set; }
+        protected string Name { get; set; }
+    }
+
+    public class GoldCustomer : Customer
+    {
+        public GoldCustomer(int id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var customer = new Customer();
+            // customer.Id = 10; // Doesn't work.
+            var goldCustomer = new GoldCustomer(id: 10, name: "Gabriel"); // This works because Id and Name are protected, not private.
+            // Console.WriteLine(goldCustomer.Id); // Doesn't work as well.
+        }
+    }
+}
+```
+
+An **internal** member is a member that can only be accessed within the same assembly. It's often used for classes, not its members. It doesn't make sense to use it for methods, properties or fields. If this modifier is applied to a class, we can instantiate it within our assembly (or DLL), but cannot instantiate it in another one.
+
+A **protected internal** is a very bad practice and should not be used. A member with this modifier can be accessed from the same assembly or any derived classes.
 
 ## Arrays
 
@@ -1248,9 +1318,9 @@ R$ 12
 
 Since my system is set to Brazil and it's using the Brazilian currency format, it displayed it as BRL.
 
-## Default values
+## Default or optional arguments
 
-Like Python, we can give arguments of a method default values.
+Like Python, we can give arguments of a method default values to make them optional. **They also have to appear after all required parameters**.
 
 The following method summarizes a long text:
 
@@ -1272,6 +1342,25 @@ public static string Summarize(string text, int length = 20)
 ```
 
 We can see here that `length` already has a pre-defined value. Thus, when we call this method, we don't have to pass in a length if we want to use the default as 20, we can just pass the text.
+
+We can also pass them [using the colon notation](#parsing-arguments-to-methods), in any order, or use the colon notation to specify only the optional arguments that we want to:
+
+```cs
+...
+public int Test(bool aTest, string testStr, int optInt = 2, double aDouble = 4)
+{
+    return 0;
+}
+...
+```
+
+When we call this test method in `Main()`, we can specify only the `aDouble` argument, for example:
+
+```cs
+...
+aClass.Test(true, testStr, aDouble = 3.4);
+...
+```
 
 ## Working with files
 
@@ -1457,7 +1546,8 @@ namespace Classes
         }
 
         // Constructors:
-        public Customer(int id) : this() // Calls the parameterless constructor.
+        // Calls the parameterless constructor:
+        public Customer(int id) : this()
         {
             _id = id;
         }
@@ -1871,22 +1961,7 @@ public void Promote()
 }
 ```
 
-## Access modifiers
-
-Since this was not covered so good in the [Learning Java repository](https://github.com/gagibran/learning-java), I'll put this section here.
-
-We have:
-- Public;
-- Private;
-- Protected;
-- Internal;
-- Protected Internal.
-
-Private and public modifiers are the only ones that are well covered.
-
-Here's the [official documentation](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/access-modifiers) explaining their permissions.
-
-Modifiers improve the encapsulation/information hiding in our code.
+Since properties are a thing in C#, most of the fields can be declared as read-only, since they won't have any setters or getters.
 
 ## Properties
 
@@ -2249,6 +2324,87 @@ namespace AssociationBetweenClasses
         public void AddHyperlink(string url)
         {
             Console.WriteLine($"Link added to {url}.");
+        }
+    }
+}
+```
+
+To call the constructor from the base class we use the `base()` keyword, as opposed to Java's `super()`. The syntax is similar to [calling a constructor from a overloaded one](#calling-a-constructor-from-a-overloaded-one). We pass into the `base()` the arguments of the constructor of the base class, just like in Java.
+
+As opposed to Java, we don't actually need to call the base constructor **if it doesn't initialize any fields or properties**, because it will be called regardless. But, if the base class has any constructors with initialization, `base()` must be used, like in Java:
+
+```cs
+using System;
+
+namespace Inheritance
+{
+    public class Vehicle
+    {
+        private readonly long _registrationNumber;
+
+        public Vehicle()
+        {
+            Console.WriteLine("Vehicle is being initialized.");
+        }
+    }
+
+    public class Car : Vehicle
+    {
+        public Car () // : base() doesn't have to be initialized here.
+        {
+            Console.WriteLine("Car is being initialized.");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var car = new Car();
+        }
+    }
+}
+```
+
+This prints out:
+
+```
+Vehicle is being initialized.
+Car is being initialized.
+```
+
+With initialization:
+
+```cs
+using System;
+
+namespace Inheritance
+{
+    public class Vehicle
+    {
+        private readonly long _registrationNumber;
+
+        public Vehicle(long registrationNumber)
+        {
+            registrationNumber = _registrationNumber;
+            Console.WriteLine("Vehicle is being initialized.");
+        }
+    }
+
+    public class Car : Vehicle
+    {
+        // : base() is no longer optional, because we no longer have a parameterless constructor in the base class:
+        public Car (long registrationNumber) : base(registrationNumber)
+        {
+            Console.WriteLine("Car is being initialized.");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var car = new Car(123344534534);
         }
     }
 }

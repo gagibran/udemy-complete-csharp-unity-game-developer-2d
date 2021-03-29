@@ -178,4 +178,25 @@ The final result:
 
 ![Cleaned Curve](lines-and-shapes/cleaned-curve.png)
 
+### Shapes
 
+They are nothing more than a closed line. The most difficult shape here is a circle. There are some techniques to draw them.
+
+These are the steps to create a circle:
+
+1. Draw a square at the desired size;
+2. clean up the edges;
+3. Repeat the process.
+
+We can change the patter of the pixels as well, just like in this example:
+
+![Circles](lines-and-shapes/circles.png)
+
+
+### Challenges from this section
+
+Challenge one:
+
+![Challenge One](lines-and-shapes/challenge-one.png)
+
+Challenge two:
