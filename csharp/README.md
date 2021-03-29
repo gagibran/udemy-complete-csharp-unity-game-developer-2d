@@ -48,6 +48,7 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Class coupling](#class-coupling)
 - [Inheritance](#inheritance)
 - [Composition](#composition)
+- [Upcasting and downcasting](#upcasting-and-downcasting)
 
 ## C# naming conventions
 
@@ -556,11 +557,11 @@ All [structures](#structs) are **value types** and all classes are **reference t
 
 When we create a **value type**, we allocate memory **automatically** on the **stack** for it. When we get out of this value's scope, the value is immediately removed from the memory.
 
-With reference types, we need to allocate memory **manually**. We can do that by using the **new** keyword and the value is allocated on the memory **heap**.
+With reference types, we need to allocate memory **manually**. We can do that by using the **new** keyword and the value is allocated on the memory **heap**, which is a larger amount of memory, and it's used to store data that have a longer lifetime.
 
 Unlike stack, the heap is more sustainable. Thus, whenever we go out of scope, the value will continue to exist for a little while. It won't be removed immediately.
 
-There's a process called garbage collection that' done by the [CLR](https://docs.microsoft.com/en-us/dotnet/standard/clr) (or runtime) that takes care of this.
+There's a process called garbage collection that's done by the [CLR](https://docs.microsoft.com/en-us/dotnet/standard/clr) (or runtime) that takes care of this.
 
 So, once in a while, the CLR searches for objects that are no longer in use and removes them from the heap.
 
@@ -2429,3 +2430,169 @@ So, we make a `Walkable` class, with a `Walk()` method on it. We now make `Perso
 With composition, we can also replace the `Animal` class with an `IAnimal` interface.
 
 Thus, we should always favor composition over inheritance, but use inheritance properly if needed.
+
+## Upcasting and downcasting
+
+In C#, we can convert a value from a derived class to a base class, also called **upcasting**, or convert a base class from a derived class, also known as **downcasting**.
+
+To upcast a value, we can simply assign it to a base class object, as it's implicit. For example:
+
+```cs
+using System;
+
+namespace Inheritance
+{
+ 
+    public class Shape
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+
+        public void Draw()
+        {
+        }
+    }
+
+
+    public class Text : Shape
+    {
+        public double FontSize { get; set; }
+        public string FontName { get; set; }
+    }
+
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var text = new Text();
+            Shape shape = text; // Upcasting the value of "text" to a "Shape" object.
+            Shape anotherText = new Text(); // This upcasting also works, as it should because of polymorphism.
+
+            // Changing "Width" in any of the two objects affect both:
+            shape.Width = 200;
+            text.Width = 100;
+            Console.WriteLine($"shape.Width: {shape.Width}, text.Width: {text.Width}."); // Both will be 200.
+        }
+    }
+}
+```
+
+Here, both objects `text` and `shape` point to the same memory address, because we're passing by reference. Thus, changing any properties or fields of `text`, also changes it for `shape`.
+
+In a real world scenario, we could use this conversion when using `System.IO.StreamReader`. Its constructor accepts a `Stream` object, or any classes derived from it, like `FileStream`, `MemoryStream` and so on. These objects are automatically upcast to `Stream`.
+
+The same thing can be said to the `Add`
+
+For downcasting, we can use [explicit conversion](#converting-types).
+
+Or, we can use the `as` keyword. If the object cannot be converted to the target type, instead of throwing a `InvalidCastException`, it sets the object to `null`.
+
+We can use the `is` keyword to check the type of an object.
+
+Example:
+
+```cs
+using System;
+
+namespace Inheritance
+{
+    public class Shape
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+
+        public void Draw()
+        {
+        }
+    }
+
+
+    public class Text : Shape
+    {
+        public double FontSize { get; set; }
+        public string FontName { get; set; }
+    }
+
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Shape shape = new Text(); // Even though we're explicitly declaring it as "Shape", it will be cast to "Text" at runtime.
+
+            // This "shape" object won't have any properties from "Text", because it's converted only at runtime:
+            // text.FontName = "Arial"; // This doesn't work
+
+            // We need to downcast this object to give it access to the properties of "Text":
+            Text text = (Text)shape;
+
+            // Here we can also use the "as" keyword, if we didn't know the implications of this downcasting:
+            Text anotherText = shape as Text;
+            Console.WriteLine(anotherText == null); // "false" here, since the conversion is successful.
+
+            // Now, "text" can access "Text"'s properties:
+            text.FontName = "Arial";
+
+            // Using "is":
+            if (shape is Text)
+            {
+                Console.WriteLine("shape is Text."); // Prints out the message, since "shape" gets converted at runtime.
+            }
+        }
+    }
+}
+```
+
+## Boxing and unboxing
+
+It was also covered in the Java course, but very poorly.
+
+It's the process of converting a [value type instance to an object reference](#reference-types-and-value-types).
+
+Whenever we box a value type to a reference type, CLR creates an object in the heap and creates a reference on the stack that points to that object.
+
+Unboxing is the opposite of boxing, we convert a reference type to a value type.
+
+They both have a performance penalty, because of this extra object creation and referencing. Thus, this should be avoided if possible.
+
+An example:
+
+```cs
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Inheritance
+{
+ 
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var list = new ArrayList();
+
+            // The "Add()" method takes an argument of type "object", which is the mother of all classes.
+            // Thus, we can add any object to this list, which isn't type safe, and should be avoided:
+            list.Add(1);
+            list.Add(23.4); // Boxing is happening here, because 23.4 is being converted to an "object".
+            list.Add("Gabriel"); // Boxing doesn't happen here, because strings are reference type.
+            list.Add(DateTime.Today); // DateTime is a struct, which is a value type, so boxing happens here.
+
+            // var forbidden = (int)list[2]; // This will crash on runtime, because "Gabriel" cannot be converted to an integer.
+            var convertedDOuble = (double)list[1]; // Unboxing is happening here, because 23.4 is being converted back to a double.
+
+            // If we work with a generic class, such as a "List", boxing and unboxing doesn't happen. We also get type safety:
+            var anotherList = new List<int>();
+            anotherList.Add(1);
+            anotherList.Add(2);
+            anotherList.Add(5);
+            anotherList.Add(4);
+        }
+    }
+}
+```
