@@ -15,6 +15,7 @@ I am using [Pyxel Edit](https://pyxeledit.com/) to make tiles and [Aseprite](htt
 - [Lines and shapes](#lines-and-shapes)
     - [Lines](#lines)
     - [Curves](#curves)
+- [Shading and highlighting](#shading-and-highlighting)
 
 ## Pyxel Edit
 
@@ -192,6 +193,9 @@ We can change the patter of the pixels as well, just like in this example:
 
 ![Circles](lines-and-shapes/circles.png)
 
+[This video](https://www.youtube.com/watch?v=2U3gib0r48o) from [TodaysTuts](https://www.youtube.com/channel/UC8e9e4eP0KBaDFJbBv_2dDg) is actually a better to draw circles and ellipsoids.
+
+Alternatively, it's better to just use the circle tool from a pixel art software.
 
 ### Challenges from this section
 
@@ -200,3 +204,24 @@ Challenge one:
 ![Challenge One](lines-and-shapes/challenge-one.png)
 
 Challenge two:
+
+![Challenge Two](lines-and-shapes/challenge-two.png)
+
+## Shading and lighting
+
+### Value and contrast
+
+Value is how dark or light our color is.
+
+Contrast is the difference between two colors on the value spectrum.
+
+In a game, it's important to keep a background high enough so that players can differentiate between the background and characters.
+
+It's also important not to keep the background too high, so that it doesn't split
+
+### Basic 3D geometric shapes
+
+Everything is made up of 5 basic shapes: cubes, spheres, pyramids, cylinders, and cones. Learning how to draw and shape them can help us in the longer term.
+
+### Shading a cube
+

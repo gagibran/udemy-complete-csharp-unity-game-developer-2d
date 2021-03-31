@@ -44,17 +44,17 @@ Since Unity projects are too large to be stored in GitHub, I will only keep this
 
 We can start by creating a new project in Unity Hub. When it's done creating, the folder structure will look like this for a project named **HelloWorld**:
 
-![Unity Folder Structure](readme-images/unity-folder-structure.png)
+![Unity Folder Structure](../readme-images/unity-folder-structure.png)
 
 Under the folder **HelloWorld**.
 
 In unity, we can create a C# file by right clicking in the **Assets** area, select **Create**, and select **C# Script**:
 
-![Create C# Script](readme-images/create-cs-file.png)
+![Create C# Script](../readme-images/create-cs-file.png)
 
 Right after clicking **Create**, we have to rename the file to something other than the default. In this case, **HelloWorld**:
 
-![Hello World C#](readme-images/hello-world-cs.png)
+![Hello World C#](../readme-images/hello-world-cs.png)
 
 We can choose to open it in Visual Studio by double clicking the file. The template C# script that's generated is:
 
@@ -106,7 +106,7 @@ After that, we have to attach it into a **game object**.
 
 We can see all game objects in the left side view of Unity, in the **Hierarchy** pane:
 
-![Hierarchy Pane](readme-images/hierarchy-pane.png)
+![Hierarchy Pane](../readme-images/hierarchy-pane.png)
 
 Right now, the only object present is the **Main Camera**.
 
@@ -114,17 +114,17 @@ To attach our script to the **Main Camera** object, we can simply drag and drop 
 
 If we click on the object, we should see the script added in the **Inspector** pane, on the right side, in the bottom:
 
-![Script Added](readme-images/script-added.png)
+![Script Added](../readme-images/script-added.png)
 
 We can also click the **Add Component** button to attach a script there.
 
 Finally, to execute our script, we have to click the **play button** in the upper middle section of Unity:
 
-![Play Button](readme-images/play-button.png)
+![Play Button](../readme-images/play-button.png)
 
 The message will be displayed into the **console view**:
 
-![Console View](readme-images/console-view.png)
+![Console View](../readme-images/console-view.png)
 
 To stop the current play session, we just have to click the **play button** again.
 
@@ -179,7 +179,7 @@ This has to go inside the [Update()](#update-method) method in the **NumberWizar
 
 The message "Up Arrow key was pressed." will only be displayed **if we push the key after we click inside the Game tab**:
 
-![Up Key Pushed](readme-images/up-key-pressed.png)
+![Up Key Pushed](../readme-images/up-key-pressed.png)
 
 Here's a [list](https://docs.unity3d.com/ScriptReference/KeyCode.html) from the official documentation of all key codes that are available for reading.
 
@@ -259,7 +259,7 @@ public class NumberWizard : MonoBehaviour
 
 Trying to guess the number 643:
 
-![Guessed Number](readme-images/guessed-number.png)
+![Guessed Number](../readme-images/guessed-number.png)
 
 Something to note is that this game still has a major bug. When we hit up and down a certain amount of times, the minimum and maximum values will be equal, meaning that their mean will be equal themselves. In other words, when this condition is reached, we won't be able to update the value anymore and the **guess** variable will get stuck in a value.
 
@@ -287,31 +287,31 @@ According to the [documentation](https://docs.unity3d.com/Manual/Sprites.html), 
 
 To create a sprite in Unity, we just have to right click in the **Assets** area, select **Create**, just like we did to create the C# script, click **2D**, then **Sprites**, and finally, choose between **Square**, **Triangle**, **Diamond**, **Hexagon**, **Circle**, and **Polygon**:
 
-![Create Sprits](readme-images/create-sprites.png)
+![Create Sprits](../readme-images/create-sprites.png)
 
 Similarly to the adding a script into a game object, we can drag and drop a sprite into it. We can do it as many times as we want to add multiple sprites into a game object.
 
 In their **Inspector** pane, we can change their color, move them around the scene pane (can also be done by clicking and dragging), add scripts etc:
 
-![Inspect](readme-images/inspector.png)
+![Inspect](../readme-images/inspector.png)
 
 They will appear into our hierarchy tree.
 
 In the top right, we have a bunch of tools to mess around with the sprite, like **Hand Tool**, **Move Tool**, **Scale Tool**, **Rotate Tool**, and **Editor Tool**:
 
-![Tools](readme-images/tools.png)
+![Tools](../readme-images/tools.png)
 
 Despite this being a 2D course, the game scene can be changed to 3D as well:
 
-![Two D Toggle](readme-images/two-d-toggle.png)
+![Two D Toggle](../readme-images/two-d-toggle.png)
 
 Example of 2D:
 
-![Added Sprites](readme-images/added-sprites.png)
+![Added Sprites](../readme-images/added-sprites.png)
 
 **Challenge screenshot:**
 
-![Challenge Screenshot](readme-images/challenge-screenshot.png)
+![Challenge Screenshot](../readme-images/challenge-screenshot.png)
 
 ### UI
 
@@ -321,7 +321,7 @@ In Unity, the UI lives on the Canvas, which stays on the top layer in relation t
 
 We create a Canvas by going to `GameObject`, on the top menu, then `UI`, finally `Canvas`:
 
-![Canvas](readme-images/canvas.png)
+![Canvas](../readme-images/canvas.png)
 
 It creates a huge canvas, but its size doesn't matter, as it will stay on the top of our game.
 
@@ -329,25 +329,25 @@ The canvas adjusts itself to the size of our game window.
 
 We can lock the game window at an aspect ration by clicking the `Game` panel, going to `Free Aspect`, and specifying a ratio:
 
-![Aspect Ratio](readme-images/aspect-ratio.png)
+![Aspect Ratio](../readme-images/aspect-ratio.png)
 
 For this game, we're selecting `Full HD (1920x1080)`.
 
 We can create text on the canvas by right clicking the `Canvas` object in the hierarchy menu and selecting `Text`:
 
-![Text](readme-images/text.png)
+![Text](../readme-images/text.png)
 
 We can adjust it, change its color, its font size, the font family, spacing, rename it, and so on, just like any other game object.
 
 We can adjust the text by going to the `Text` editor on the text object's `Inspector`.
 
-![Text Inspector](readme-images/text-inspector.png)
+![Text Inspector](../readme-images/text-inspector.png)
 
 We can create an `Image` object doing the same steps, but selecting `Image` in the `UI` section.
 
 We can also change the hierarchy of the game objects (which one sits on top of which one) by dragging and dropping an object making it the first to be rendered in the hierarchy:
 
-![Image Text Hierarchy](readme-images/image-text-hierarchy.png)
+![Image Text Hierarchy](../readme-images/image-text-hierarchy.png)
 
 In this image, `Image` is rendered first than `Story Text`, making it sit on the bottom of the text.
 
@@ -359,7 +359,7 @@ If we unselect `Canvas`, we make both its children invisible.
 
 The final game screen for this Text101 game that I created:
 
-![Wizards Of Oslam](readme-images/wizards-of-oslam.png)
+![Wizards Of Oslam](../readme-images/wizards-of-oslam.png)
 
 ### Updating the text content
 
@@ -367,17 +367,17 @@ We'll create a script that will dynamically change the text of the story.
 
 First off, we need to create an empty game object to attach a script to it. We can do that by right clicking inside the `Hierarchy` pane, or clicking in the `GameObject` menu and selecting `Create Empty`:
 
-![Create Empty](readme-images/create-empty.png)
+![Create Empty](../readme-images/create-empty.png)
 
 The empty game object appears on the hierarchy pane like so:
 
-![Empty Game Object](readme-images/empty-game-object.png)
+![Empty Game Object](../readme-images/empty-game-object.png)
 
 I've renamed it to `Game Logic` to make it as clear as possible that the logic script will be attached to it.
 
 In the `Inspector` view, we can see that this game object was created with a default `Transform` component. The values of this components specify where in the world our object will be placed:
 
-![Default Transform](readme-images/default-transform.png)
+![Default Transform](../readme-images/default-transform.png)
 
 It's always good practice to reset these values to 0 whenever we create a new empty object.
 
@@ -416,13 +416,13 @@ public class GameLogic : MonoBehaviour
 
 Looking at our `Game Logic` game object's inspector now, we have a new field called `Text Component` that **references** the local variable with the same name that we just created:
 
-![Serialized Field](readme-images/serialized-field.png)
+![Serialized Field](../readme-images/serialized-field.png)
 
 This field's name was created based upon the name that we gave our variable. Unity automatically separated the string and capitalized it properly.
 
 Now, to dynamically update the story text, we can drag and drop the game object `Story Text` into this field, or, click on the selector to the right of the field and select `Story Text`:
 
-![Select Story Text](readme-images/select-story-text.png)
+![Select Story Text](../readme-images/select-story-text.png)
 
 That's why we created the variable as of type `UnityEngine.UI.Text`, so that Unity knows that we're trying to link a text element to this particular variable.
 
@@ -456,7 +456,7 @@ public class GameLogic : MonoBehaviour
 
 When we hit play:
 
-![Text Dynamically Changed](readme-images/text-dynamically-changed.png)
+![Text Dynamically Changed](../readme-images/text-dynamically-changed.png)
 
 ### Game states
 
@@ -470,7 +470,7 @@ We also have **conditions** that enable us to transition from one state to anoth
 
 A flowchart representing a finite state machine:
 
-![State Machine Example](readme-images/state-machine-example.png)
+![State Machine Example](../readme-images/state-machine-example.png)
 
 Here we have **3 states and one decision point**.
 
@@ -488,7 +488,7 @@ It is lightweight and convenient and can be used as a template for consistency.
 
 We can select the content from a scriptable object to input into our game as needed:
 
-![Scriptable Objects](readme-images/scriptable-objects.png)
+![Scriptable Objects](../readme-images/scriptable-objects.png)
 
 We can begin creating a **scriptable object** by creating a new C# class and **not attaching it to any game objects**.
 
@@ -528,7 +528,7 @@ public class State : ScriptableObject
 
 Now, in Unity, if we right-click inside the `Assets` pane, we can create a state, which is the **scriptable object** that we've just created:
 
-![Create State Unity](readme-images/create-state-unity.png)
+![Create State Unity](../readme-images/create-state-unity.png)
 
 This option, as previously said, was created by `[CreateAssetMenu(menuName = "State")]`.
 
@@ -536,7 +536,7 @@ If we check the `Inspector` pane, we can see that there's the `Story Text` field
 
 Similar to when we serialized a variable before, Unity converts the variable name to the field that we see inside the engine, when we inspect the `StartingState` scriptable object:
 
-![Inspect Starting State](readme-images/inspect-starting-state.png)
+![Inspect Starting State](../readme-images/inspect-starting-state.png)
 
 Each state that we create will have this serialized field by default, now.
 
@@ -640,7 +640,7 @@ When we go back to inspect `Game Logic` in Unity, we see that there' now a field
 
 We'll attach the scriptable object `StartingState.asset` that we created there by dragging it from `Assets` into this field:
 
-![Attaching Starting State](readme-images/attaching-starting-state.png)
+![Attaching Starting State](../readme-images/attaching-starting-state.png)
 
 Afterwards, we'll create a variable called `state`, of type `State` in `GameLogic.cs`, which holds the current state that we are, so that we can access `GetStateStory()` within this script.
 
@@ -685,7 +685,7 @@ public class GameLogic : MonoBehaviour
 
 Now, when we click the play button in Unity, we get:
 
-![Scriptable Object Play](readme-images/scriptable-object-play.png)
+![Scriptable Object Play](../readme-images/scriptable-object-play.png)
 
 Recapitulating our steps so far:
 1. We created the `Game Logic` game object in Unity and `GameLogic.cs`;
@@ -737,7 +737,7 @@ public class State : ScriptableObject
 
 Now, if we inspect `StartingState.asset` again:
 
-![Starting State Array](readme-images/starting-state-array.png)
+![Starting State Array](../readme-images/starting-state-array.png)
 
 I actually grouped state 1 and 2 in `1. Force to loosen your hands and feet;` for the sake of simplicity.
 
@@ -749,11 +749,11 @@ We can see that a list was created. Now, we can store the four states that this 
 
 I created the next states for these options:
 
-![Some States](readme-images/some-states.png)
+![Some States](../readme-images/some-states.png)
 
 Now, we have to define the size of this array to `4`, by changing the default `0` on the far right. Then, we can drag and drop all of our states to this list:
 
-![Next States Appended](readme-images/next-states-appended.png)
+![Next States Appended](../readme-images/next-states-appended.png)
 
 ### Managing next states
 
@@ -876,7 +876,7 @@ I also changed the `StartingState` scriptable object to `InsideTheCultShop`. But
 
 When hit play, when hitting `1` we get:
 
-![First State](readme-images/first-state.png)
+![First State](../readme-images/first-state.png)
 
 ### Designing game flow
 
@@ -905,7 +905,7 @@ At this step, we can polish the game, by adding a menu with "New Game", "Manual"
 
 We can also use **TextMesh Pro**, which is a built-in package that deals with text polishing. It can be accessed by going to `Window/textMash Pro`:
 
-![TextMesh Pro](readme-images/textmesh-pro.png)
+![TextMesh Pro](../readme-images/textmesh-pro.png)
 
 We can also add packages to our project by accessing the `Package Manager`, also in `Window`, as seen in the picture above. In the `Package Manager`, we can also see which packages are imported to our project, which are available to be updated, and we can install more.
 
@@ -915,7 +915,7 @@ A folder called `TextMesh Pro`, with the additional packages will be created ins
 
 The creator screen looks like this:
 
-![Font Asset Creator](readme-images/font-asset-creator.png)
+![Font Asset Creator](../readme-images/font-asset-creator.png)
 
 We need to feed in a font inside so that it creates an asset from it.
 
@@ -927,25 +927,25 @@ In Unity, we can create a folder called `Assets/Fonts` to store any custom fonts
 
 Afterwards, we go into the `Font Asset Creator`, drag and drop the font to `Source Font File`, then click on `Generate Font Atlas`:
 
-![Generate Font](readme-images/generate-font.png)
+![Generate Font](../readme-images/generate-font.png)
 
 Once its done generating, we'll see a success message in the output window. We then hit `Save`
 
-![Font Generated](readme-images/font-generated.png)
+![Font Generated](../readme-images/font-generated.png)
 
 Now, inside the `Fonts` folder, we have a `<previousName> SDF.asset` file, which is the font converted into asset. In my case, I replaced the whitespace with a underscore and called them `CIND_SDF.asset` and `windows_command_prompt_SDF.asset`.
 
 Now, we right-click on `Canvas`, in the hierarchy menu, an select `UI/TextMesh Pro - Text`
 
-![UI TextMesh Text](readme-images/ui-textmesh-text.png)
+![UI TextMesh Text](../readme-images/ui-textmesh-text.png)
 
 A new game object called `Text (TMP)` will be created, which is a text box with the font that we just imported. We can retype the text that we want there and replace it in the game:
 
-![Text TMP Object](readme-images/text-tmp-object.png)
+![Text TMP Object](../readme-images/text-tmp-object.png)
 
 We can delete the `Title Text` object and make this one our new title text. In its `inspector`, we can attach the newly created asset font to the element by dragging and dropping it to `Font Asset` in the `Main Settings`:
 
-![Add Custom Fonts](readme-images/add-custom-font.png)
+![Add Custom Fonts](../readme-images/add-custom-font.png)
 
 Since I changed the `Story Text` game object to TMP, I had to make a few changes in `GameLogic.cs` in order to make it work properly.
 
@@ -963,7 +963,7 @@ public class GameLogic : MonoBehaviour
 
 Now, we can attach a TMP game object in `Text Component`, in `Game Logic`:
 
-![Game Logic With TMP](readme-images/game-logic-with-tmp.png)
+![Game Logic With TMP](../readme-images/game-logic-with-tmp.png)
 
 Another polish that I will apply to the code here is to get rid of the hard-coded states that we're checking to see if the player needs to hit enter or not.
 
@@ -1093,11 +1093,11 @@ The first step here is to change the aspect ratio from 1920x1080 to 16:9, so it 
 
 The next step is to go to the `Canvas` game object and, in the inspector, change the `UI Scale Model` from `Constant Pixel Size` to `Scale With Screen Size` and adjust the `Reference Resolution` to 1920x1080, since our game was made in this resolution.
 
-![Scale With Screen Size](readme-images/scale-with-screen-size.png)
+![Scale With Screen Size](../readme-images/scale-with-screen-size.png)
 
 Next up, we go to `File` and we select `Build Settings` or just hit `Ctrl + Shift + B`:
 
-![Scale With Screen Size](readme-images/build-settings.png)
+![Scale With Screen Size](../readme-images/build-settings.png)
 
 In the build window, we can see that our game has currently only one scene selected, `Scenes/SampleScene`. We leave it as it is and select `WebGl`.
 
@@ -1105,7 +1105,7 @@ We need to click on the `Switch Platform` icon that's on the bottom left, close 
 
 After selecting `Switch Platform`, some background compilation will be done. After it finishes, we click on `Build and Run`:
 
-![Scale With Screen Size](readme-images/build-and-run-webgl.png)
+![Scale With Screen Size](../readme-images/build-and-run-webgl.png)
 
 After building, we can see the artifacts generated inside the folder that we saved in.
 
@@ -1119,6 +1119,6 @@ Another better option is launch it at [itch.io](https://itch.io/). It's free and
 
 **Important note about [itch.io](https://itch.io/)**: For some reason, the game doesn't fully load if we publish our game with the `Brotli` compression format selected. Thus, we have to change it **before we build** by going to `Player Settings` in the build window, expanding `Publishing Settings` in the `Project Settings` window, and changing the drop-down menu `Compression Format` from `Brotli` to `Gzip`:
 
-![Gzip Compression](readme-images/gzip-compression.png)
+![Gzip Compression](../readme-images/gzip-compression.png)
 
 The game published on [itch.io]() can be found [here](https://gabrielgibran.itch.io/wizards-of-oslam).

@@ -12,11 +12,12 @@ The courses are:
 
 1. [C# Basics for Beginners: Learn C# Fundamentals by Coding](https://www.udemy.com/course/csharp-tutorial-for-beginners/);
 2. [C# Intermediate: Classes, Interfaces and OOP](https://www.udemy.com/course/csharp-intermediate-classes-interfaces-and-oop/);
-3. [C# Advanced Topics: Prepare for Technical Interviews](https://www.udemy.com/course/csharp-advanced/).
+3. [C# Advanced Topics: Prepare for Technical Interviews](https://www.udemy.com/course/csharp-advanced/);
+4. [Unit Testing for C# Developers](https://www.udemy.com/course/unit-testing-csharp/)
 
 I will also include some exercises that I see fit from these courses. All of them made using .NET Core 5.
 
-## Table of Contents:
+## Table of contents
 
 - [C# naming conventions](#c-naming-conventions)
 - [Namespaces](#namespaces)
@@ -49,6 +50,13 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Inheritance](#inheritance)
 - [Composition](#composition)
 - [Upcasting and downcasting](#upcasting-and-downcasting)
+- [Method overriding](#method-overriding)
+- [Abstract classes and members](#abstract-classes-and-members)
+- [Sealed classes and members](#sealed-classes-and-members)
+- [Interfaces](#interfaces)
+- [Attributes](#attributes)
+- [Unit testing](#unit-testing)
+    - [Unit Test Project](#unit-test-project)
 
 ## C# naming conventions
 
@@ -438,7 +446,7 @@ public enum ShippingMethod
 }
 ```
 
-Notice that we didn't have to explicitly specify the data type, because their integers by default.
+Notice that we didn't have to explicitly specify the data type, because they're integers by default.
 
 We can change the data type to **another numeric data type only** using a colon:
 
@@ -1693,18 +1701,21 @@ namespace Classes
 }
 ```
 
-Instead of creating the `double` array, we can instead use the `params` keyword when declaring the `Add()` method:
+When creating the `double` array, we can use the `params` keyword, when declaring the `Add()` method:
 
 ```cs
-using System;
-
 namespace Classes
 {
-    class Program
+    public class Calculator
     {
-        static void Main(params string[] args)
+        public static double Add(params double[] numbers)
         {
-            Console.WriteLine(Calculator.Add(new double[] { 1, 2, 3, 4 }));
+            double sum = 0;
+            foreach (var number in numbers)
+            {
+                sum += number;
+            }
+            return sum;
         }
     }
 }
@@ -2596,3 +2607,801 @@ namespace Inheritance
     }
 }
 ```
+
+## Method overriding
+
+In C#, we use the `override` and `virtual` keywords to override methods.
+
+The `virtual` keyword is used in the method to be overridden, whereas the `override`, is used in the actual overridden method from the child class.
+
+The keyword should go **in between the access modifier and the return type**.
+
+Another difference is that we use the `base` keyword to call to parent method, instead of `super`. And, just like in Java, we don't actually need to call the base method if we don't want to.
+
+Example for the classes `Canvas`, `Shape`, `Circle`, which inherits from `Shape`, and `Rectangle`, which also inherits from `Shape`.
+
+`Canvas`:
+
+```cs
+using System;
+using System.Collections.Generic;
+
+namespace Polymorphism
+{
+    public class Canvas
+    {
+        private readonly List<Shape> _shapes = new List<Shape>();
+
+        // With polymorphism, the list of shapes can contain any class that's derived from it:
+        public void DrawShapes()
+        {
+            foreach (var shape in _shapes)
+            {
+
+                // Thus, we can simply call the Draw() method that will be overridden in all of the classes inheriting from shape:
+                shape.Draw();
+            }
+        }
+        public void AddShapeToCanvas(params Shape[] shapesParameter)
+        {
+            foreach (var shapeParameter in shapesParameter)
+            {
+                _shapes.Add(shapeParameter);
+            }
+        }
+        public void PrintShapesInCanvas()
+        {
+            Console.WriteLine("We currently have:");
+            foreach (var shape in _shapes)
+            {
+                Console.WriteLine($"A {shape.GetType().Name}");
+            }
+            Console.WriteLine("In the canvas.");
+        }
+    }
+}
+```
+
+`Shape`:
+
+```cs
+using System;
+using System.Collections.Generic;
+
+namespace Polymorphism
+{
+    public class Canvas
+    {
+        private readonly List<Shape> _shapes = new List<Shape>();
+
+        // With polymorphism, the list of shapes can contain any class that's derived from it:
+        public void DrawShapes()
+        {
+            foreach (var shape in _shapes)
+            {
+
+                // Thus, we can simply call the Draw() method that will be overridden in all of the classes inheriting from shape:
+                shape.Draw();
+            }
+        }
+        public void AddShapeToCanvas(params Shape[] shapesParameter)
+        {
+            foreach (var shapeParameter in shapesParameter)
+            {
+                _shapes.Add(shapeParameter);
+            }
+        }
+        public void PrintShapesInCanvas()
+        {
+            Console.WriteLine("We currently have:");
+            foreach (var shape in _shapes)
+            {
+                Console.WriteLine($"A {shape.GetType().Name}");
+            }
+            Console.WriteLine("In the canvas.");
+        }
+    }
+}
+```
+
+`Circle`:
+
+```cs
+using System;
+
+namespace Polymorphism
+{
+    public class Circle : Shape
+    {
+        public override void Draw()
+        {
+            base.Draw();
+            Console.WriteLine("In this case, a circle.");
+        }
+    }
+}
+```
+
+`Rectangle`:
+
+```cs
+using System;
+
+namespace Polymorphism
+{
+    public class Rectangle : Shape
+    {
+        public override void Draw()
+        {
+            base.Draw();
+            Console.WriteLine("In this case, a rectangle.");
+        }
+    }
+}
+```
+
+Finally, the `Main()` method:
+
+```cs
+using System;
+
+namespace Polymorphism
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var circle = new Circle(); // Of type Circle, not Shape.
+            var rectangle = new Rectangle(); // Of type Rectangle, not Shape.
+            var canvas = new Canvas();
+            canvas.AddShapeToCanvas(circle, rectangle);
+            canvas.PrintShapesInCanvas();
+            Console.WriteLine();
+            canvas.DrawShapes();
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+We currently have:
+A Circle
+A Rectangle
+In the canvas.
+
+Drawing a shape.
+In this case, a circle.
+Drawing a shape.
+In this case, a rectangle.
+```
+
+We see here that the `Draw()` method, which carries the `virtual` keyword, is being overridden in both `Circle` and `Rectangle`. And through polymorphism, these overridden methods are being called in the `Canvas` class, inside the list of `Shape` types.
+
+## Abstract classes and members
+
+In C#, we use the `abstract` keyword for abstract classes and its members, just as in Java. These class can also have non-abstract members.
+
+Thus, **we don't use the `virtual` keyword anymore for methods to be overridden, in abstract classes**, but we still use `override` when implementing the abstract methods, just like Java.
+
+A difference from Java is that we don't have any `extends` or `implements` keyword here, we just use the colon, like in inheritance (`:`).
+
+Using the same example for [method overriding](#method-overriding), but declaring `Shape` and its `Draw()` method as `abstract`:
+
+`Shape`:
+
+```cs
+namespace Polymorphism
+{
+    public abstract class Shape
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+
+        public abstract void Draw();
+
+        public void Copy()
+        {
+            System.Console.WriteLine("Common copy method across all shape classes.");
+        }
+    }
+}
+```
+
+`Rectangle`:
+
+```cs
+using System;
+
+namespace Polymorphism
+{
+    public class Rectangle : Shape
+    {
+        public override void Draw()
+        {
+            Console.WriteLine("Drawing a rectangle.");
+        }
+    }
+}
+```
+
+`Circle`:
+
+```cs
+using System;
+
+namespace Polymorphism
+{
+    public class Circle : Shape
+    {
+        public override void Draw()
+        {
+            Console.WriteLine("Drawing a circle.");
+        }
+    }
+}
+```
+
+Since `Canvas` and the `Main()` method remain unchanged, executing the code gives us:
+
+```
+We currently have:
+A Circle
+A Rectangle
+In the canvas.
+
+Drawing a circle.
+Drawing a rectangle.
+```
+
+Notice that the properties didn't have to be implemented, nor declared as abstract, **but they totally could've if we wanted to**. In this case, we would have to implement `get` and `set` for a property, thus, we would need to create a field as well, since we can't implement these methods for an auto-implemented property.
+
+In the .NET Framework, we have the class `System.IO.Stream` as an abstract class.
+
+## Sealed classes and members
+
+This are the opposite of derived classes. The keyword `sealed` **prevents other classes from inheriting it**.
+
+We can also apply this to specific class members to **prevent any class derived from a base one to override that method**.
+
+But, note that **`sealed` can only be applied to methods that already are overridden in the first place**. This means that applying `sealed` to a method that doesn't overrides any other, the code won't compile.
+
+Example from the [official documentation](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/sealed):
+
+```cs
+class X
+{
+    protected virtual void F() { Console.WriteLine("X.F"); }
+    protected virtual void F2() { Console.WriteLine("X.F2"); }
+}
+
+class Y : X
+{
+    sealed protected override void F() { Console.WriteLine("Y.F"); }
+    protected override void F2() { Console.WriteLine("Y.F2"); }
+}
+
+class Z : Y
+{
+    // Attempting to override F causes compiler error CS0239.
+    // protected override void F() { Console.WriteLine("Z.F"); }
+
+    // Overriding F2 is allowed.
+    protected override void F2() { Console.WriteLine("Z.F2"); }
+}
+```
+
+Why do we need `sealed`? The documentation says that sealed classes are slightly faster at runtime, but it's not really worth using it, since it makes the code less readable and harder to understand for the sake of a tiny optimization gain.
+
+## Interfaces
+
+They are declared and work just like in Java. Here we append `I` to every interface, as opposed to Java.
+
+That's not taught in the Java course, but interfaces help improve testability.
+
+We use the colon (`:`) notation in a class that implements the interface.
+
+Example:
+
+```cs
+namespace Interfaces
+{
+    public interface IShippingCalculator
+    {
+        float CalculateShipping(Order order);
+    }
+}
+```
+
+And:
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    internal class ShippingCalculator : IShippingCalculator
+    {
+        public float CalculateShipping(Order order)
+        {
+            if (order.TotalPrice < 30f)
+            {
+                return order.TotalPrice * 0.1f;
+            }
+            return 0;
+        }
+    }
+}
+```
+
+Interfaces are a very good solution to help [unit testing](#unit-test-project) and tool extensibility.
+
+For tool extensibility, we have the following example: we want to create a tool for migrating a database. We can extend any tool by adding new classes, instead of messing with the ones that already exist, to change the behavior of our system.
+
+In practice, the cost of making everything extensible is, sometimes, costly, and not worth it. But we should always try to achieve such looseness.
+
+This is also called **OCP**, or **Open Closed Principle**, in software engineering, which states tha a software should be *open for extensions, but closed for modification*.
+
+The example:
+
+`DbMigration.cs`
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    public class DbMigrator
+    {
+        private readonly ILogger _logger;
+
+
+        // Dependency injection: we specify the dependencies inside the constructor for the DbMigrator class.
+        // Later we create the concrete class to deal with the dependencies:
+        public DbMigrator(ILogger logger)
+        {
+            _logger = logger;
+        }
+        public void Migrate()
+        {
+            _logger.LogInfo($"Migration started at {DateTime.Now}");
+            // We would implement the migration here.
+            _logger.LogInfo($"Migration finished at {DateTime.Now}");
+
+        }
+    }
+}
+```
+
+`ILogger.cs`:
+
+```cs
+namespace Interfaces
+{
+    public interface ILogger
+    {
+        void LogError(string message);
+        void LogInfo(string message);
+    }
+}
+```
+
+`ConsoleLogger.cs`:
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    public class ConsoleLogger : ILogger
+    {
+        public void LogError(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red; // Changing the property color of the console log to red.
+            Console.WriteLine(message);
+        }
+
+        public void LogInfo(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow; // Changing the property color of the console log to blue.
+            Console.WriteLine(message);
+        }
+    }
+}
+```
+
+`FileLog.cs`:
+
+```cs
+using System.IO;
+
+namespace Interfaces
+{
+    public class FileLogger : ILogger
+    {
+
+        private readonly string _path;
+
+        // Dependency injection here as well:
+        public FileLogger(string path)
+        {
+            _path = path;
+        }
+        public void LogError(string message)
+        {
+            Log(message, "ERROR");
+        }
+
+        public void LogInfo(string message)
+        {
+            Log(message, "INFO");
+        }
+
+        public void Log(string message, string messageType)
+        {
+            // Class System.IO.StreamWriter to write files. We give in the path and if values written to it should be appended or not.
+            // Since StreamWritter uses a file resource, which is not managed by CLR, we need to dispose of it when we done using it.
+            // That can be achieved by using the "using ()" block. This is similar to Python's "with open()".
+            // This is the same as just using "streamWriter.Dispose()":
+            using (var streamWriter = new StreamWriter(_path, true))
+            {
+                streamWriter.WriteLine($"{messageType}: {message}");
+            }
+        }
+    }
+}
+```
+
+And `Program.cs`:
+
+```cs
+namespace Interfaces
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var dbMigrator = new DbMigrator(new ConsoleLogger()); // Completing the dependency injection.
+            // var dbMigrator = new DbMigrator(new FileLogger("path/to/a/.txt")); // Also works. Also completes the dependency injection.
+            dbMigrator.Migrate();
+        }
+    }
+}
+```
+
+In this example, we can extend the logging system as long as we want to. With dependency injection injecting an interface, instead of a class, in `DbMigrator`, we extend the code without having to change any other classes.
+
+## Attributes
+
+Attributes are just tags, or decorators. They are metadata about our classes and their members. they don't have any logic, they are just markers.
+
+With them, another application or assembly can read this metadata and do something about it.
+
+One example is the `[SerializeField]` attribute [used in Unity](https://github.com/gagibran/learning-game-dev/tree/dev/unity-2d#scriptable-objects).
+
+## Unit testing
+
+These are scripts that we write to automate tests within our script. It's a very important topic, specially for CI/CD.
+
+When writing unit tests to a class, we need to isolate it, which means that we have to assume that every other class in the application is doing its job correctly.
+
+That's where the name comes from: **we're testing a single unit of functionality, without dependencies**.
+
+### Unit Test Project
+
+We can create a simple unit test project under our solution by adding it. We'll be covering a basic `Unit Test Project`, but later on, we'll work with Visual Studio's `NUnit`.
+
+Adding a unit test project to our solution gives us a default `UnitTest1.cs`:
+
+```cs
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Interfaces.UnitTests
+{
+    [TestClass]
+    public class UnitTest1
+    {
+        [TestMethod]
+        public void TestMethod1()
+        {
+        }
+    }
+}
+```
+
+The dependencies of the newly created project are:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
+    <PackageReference Include="coverlet.collector" Version="1.3.0" />
+  </ItemGroup>
+
+</Project>
+```
+
+We'll write test cases for the following example:
+
+`Order.cs`:
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    public class Order
+    {
+        public DateTime DatePlaced { get; set; }
+        public float TotalPrice { get; set; }
+        public Shipment Shipment { get; set; }
+        public bool IsShipped
+        {
+            get { return Shipment != null; }
+        }
+    }
+}
+```
+
+`OrderProcessor.cs`:
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    public class OrderProcessor
+    {
+        private readonly ShippingCalculator _shippingCalculator;
+        public OrderProcessor()
+        {
+            _shippingCalculator = new ShippingCalculator();
+        }
+
+        public void Process(Order order)
+        {
+            if (order.IsShipped)
+            {
+                throw new InvalidOperationException("This order is already processed.");
+            }
+
+            order.Shipment = new Shipment
+            {
+                Cost = _shippingCalculator.CalculateShipping(order),
+                ShippingDate = DateTime.Today.AddDays(1)
+            };
+        }
+    }
+}
+```
+
+`Shipment.cs`:
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    public class Shipment
+    {
+        public object Cost { get; set; }
+        public DateTime ShippingDate { get; set; }
+    }
+}
+```
+
+`ShippingCalculator.cs`:
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    public class ShippingCalculator
+    {
+        public float CalculateShipping(Order order)
+        {
+            if (order.TotalPrice < 30f)
+            {
+                return order.TotalPrice * 0.1f;
+            }
+            return 0;
+        }
+    }
+}
+```
+
+And `Program.cs`:
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var orderProcessor = new OrderProcessor();
+            var order = new Order { DatePlaced = DateTime.Now, TotalPrice = 100f };
+            orderProcessor.Process(order);
+        }
+    }
+}
+```
+
+In `OrderProcessor.cs`, we have tight-coupling between this class and `ShippingCalculator`, since it's being declared as a private field there. So, first, we need to loosen this coupling by creating an `IShippingCalculator` interface, which will be same as shown in the [interfaces](#interfaces) section:
+
+```cs
+namespace Interfaces
+{
+    public interface IShippingCalculator
+    {
+        float CalculateShipping(Order order);
+    }
+}
+```
+
+Altering `OrderProcessor.cs`:
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    public class OrderProcessor
+    {
+        private readonly IShippingCalculator _shippingCalculator;
+        public OrderProcessor(IShippingCalculator shippingCalculator)
+        {
+            _shippingCalculator = shippingCalculator; // Now, there is no more reference to ShippingCalculator, only its interface.
+        }
+
+        public void Process(Order order)
+        {
+            if (order.IsShipped)
+            {
+                throw new InvalidOperationException("This order is already processed.");
+            }
+
+            order.Shipment = new Shipment
+            {
+                Cost = _shippingCalculator.CalculateShipping(order),
+                ShippingDate = DateTime.Today.AddDays(1)
+            };
+        }
+    }
+}
+```
+
+And `Program.cs`:
+
+```cs
+using System;
+
+namespace Interfaces
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var orderProcessor = new OrderProcessor(new ShippingCalculator());
+            var order = new Order { DatePlaced = DateTime.Now, TotalPrice = 100f };
+            orderProcessor.Process(order);
+        }
+    }
+}
+```
+
+As we can see, we're not initializing the field `_shippingCalculator` as an instance of `IShippingCalculator` anymore, thus, making `ShippingCalculator` and `OrderProcessor` loosely coupled. Only the `Main()` method knows of all the classes and their interfaces.
+
+Now, we can write a test method to `OrderProcessor`. The first thing is to rename this file to `OrderProcessorTest.cs`. The second thing is to create a method for testing the `Process` method. This test method is named after the convention: `<MethodName>_<Condition>_<Expectation>()`.
+
+Inside the method, we also have to create an object from `OrderProcessor` to test the `Process` method and, for that, we need to pass in a `IShippingMethod` object to its constructor. Thus, since we're assuming all classes are working perfectly fine, we'll create a `FakeShippingMethod` that implements `IShippingMethod` inside `OrderProcessorTest.cs`.
+
+Since we don't have to actually use `FakeShippingMethod`, we can implement a very simple `CalculateSHipping` method, like returning a number.
+
+Back to the test method, we now instantiate `OrderProcessor` with this newly created `FakeShippingMethod`. We also have to pass in an `Order` object to serve as a parameter to the tested method (`Process()`). We'll create one called `order`, with the property `Shipment` initialized to a new `Shipment` instance.
+
+Now, we finally test for the `Process` method. Since `Shipment` was initialized, the `IsShipped` property from `order` will not return `null` and we'll actually get the `InvalidOperationException("This order is already processed.")` exception.
+
+Since we're testing for this particular exception, we add the property `[ExpectedException(typeof(InvalidOperationException))]` to the `Process_OrderIsAlreadyShipped_ThrowsAnException()` method, so that it knows when to fail the test. This exception comes from `System`.
+
+Putting everything together we get:
+
+```cs
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Interfaces.UnitTests
+{
+    [TestClass]
+    public class OrderProcessorTest
+    {
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void Process_OrderIsAlreadyShipped_ThrowsAnException()
+        {
+            var orderProcessor = new OrderProcessor(new FakeShippingCalculator());
+            var order = new Order() { Shipment = new Shipment() };
+            orderProcessor.Process(order);
+
+        }
+    }
+    public class FakeShippingCalculator : IShippingCalculator
+    {
+        public float CalculateShipping(Order order)
+        {
+            return 1f;
+        }
+    }
+}
+```
+
+Note here that we had to add a reference to the original project. After adding this reference, the `<ProjectReference Include="..\Interfaces\Interfaces.csproj" />` is added to `Interfaces.UnitTest.csproj`:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
+    <PackageReference Include="coverlet.collector" Version="1.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
+  </ItemGroup>
+
+</Project>
+```
+
+Running the test with `Ctrl + R + A`, we see that the test passed, because `order.IsShipping` is, indeed, throwing this exception, since `Shipment` was initialized.
+
+If we initialize `Shipment` to null (or don't initialize it at all):
+
+```cs
+...
+var order = new Order();
+...
+```
+
+The test will fail, because no exception will be thrown.
+
+Now, we'll create a second test case, for when the order isn't shipped yet (`Shipment` is empty or null) **and** that `Cost` will be equal to `1`, because, remember, we declared a `FakeShippingCalculator.CalculateShipping()` method that returns `1`, and finally, `ShippingDate` should be equal to today's date plus one day.
+
+The test case method, now called `Process_OrderIsNotShipped_ShouldSetPropertyOfTheOrder()`, will utilize the `Assert` class to assert that `order.IsShipped` is indeed null, by using the `IsTrue()` method. We use the `AreEqual()` methods to assert that `Cost` and `ShippingDate` are the expected values:
+
+```cs
+...
+[TestMethod]
+public void Process_OrderIsNotShipped_ShouldSetPropertyOfTheOrder()
+{
+    var orderProcessor = new OrderProcessor(new FakeShippingCalculator());
+    var order = new Order();
+    orderProcessor.Process(order);
+    Assert.IsTrue(order.IsShipped);
+    Assert.AreEqual(1f, order.Shipment.Cost);
+    Assert.AreEqual(DateTime.Today.AddDays(1), order.Shipment.ShippingDate);
+}
+...
+```
+
+Now, both tests should pass.
