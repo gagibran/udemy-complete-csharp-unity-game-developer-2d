@@ -3072,6 +3072,26 @@ namespace Interfaces
 
 In this example, we can extend the logging system as long as we want to. With dependency injection injecting an interface, instead of a class, in `DbMigrator`, we extend the code without having to change any other classes.
 
+Just like in Java, a class can implement multiple interfaces, but **be aware**: this is not the same as multiple inheritance, since this isn't available in C#.
+
+People tend to confuse multiple implementation with multiple inheritance, since the notation to implement an interface and to inherit a class is the same, the colon (`:`).
+
+This is specially confusing, because we can also inherit from a class and implement multiple interfaces, and we just use a colon (`:`).
+
+To do a multiple implementation (and optionally, one inheritance), we separate the interfaces (and class) with a comma. For example:
+
+```cs
+...
+public class TextBox : UiControl, IDraggable, IDroppable
+...
+```
+
+Where `UiControl` is the class and the rest are interfaces.
+
+A final note on this topic, **interface states a contract with the class that implements it, where as inheritance is used for code reusability**.
+
+Since interfaces provide polymorphic behavior, as seen in the dependency injection in `DbMigration.cs` and `FileLog.cs`
+
 ## Attributes
 
 Attributes are just tags, or decorators. They are metadata about our classes and their members. they don't have any logic, they are just markers.

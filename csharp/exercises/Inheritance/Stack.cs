@@ -29,7 +29,7 @@ namespace Inheritance
                 throw new InvalidOperationException("The list is already empty. No more objects to pop.");
             }
             int lastIndex = _list.Count - 1;
-            var objToBeRemoved = _list[lastIndex];
+            object objToBeRemoved = _list[lastIndex];
             _list.RemoveAt(lastIndex);
             return objToBeRemoved;
         }

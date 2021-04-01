@@ -23,10 +23,10 @@ namespace Classes
     /// </remarks>
     public class StopWatch
     {
-        public TimeSpan CurrentSpan { get; private set; }
-        public DateTime StartingTime { get; private set; }
-        public int TimesStopped { get; private set; }
-        public bool hasStopWatchStarted { get; private set; }
+        private TimeSpan _currentSpan
+        private DateTime _startingTime
+        private int _timesStopped
+        private bool _hasStopWatchStarted
 
         public StopWatch()
         {
@@ -35,31 +35,31 @@ namespace Classes
 
         public void Start()
         {
-            if (hasStopWatchStarted)
+            if (_hasStopWatchStarted)
             {
                 throw new InvalidOperationException("Cannot start a running timer twice in a row.");
             }
-            StartingTime = DateTime.Now;
-            hasStopWatchStarted = true;
+            _startingTime = DateTime.Now;
+            _hasStopWatchStarted = true;
         }
 
         public void Stop()
         {
-            if (!hasStopWatchStarted)
+            if (!_hasStopWatchStarted)
             {
                 throw new InvalidOperationException("Cannot stop a already stopped timer.");
             }
-            TimesStopped++;
-            CurrentSpan += DateTime.Now - StartingTime;
-            Console.WriteLine($"Stop no. {TimesStopped} (minutes, seconds, milliseconds): {CurrentSpan.ToString(@"mm\:ss\:ff")}");
-            hasStopWatchStarted = false;
+            _timesStopped++;
+            _currentSpan += DateTime.Now - _startingTime;
+            Console.WriteLine($"Stop no. {_timesStopped} (minutes, seconds, milliseconds): {_currentSpan.ToString(@"mm\:ss\:ff")}");
+            _hasStopWatchStarted = false;
         }
 
         public void ResetTimer()
         {
-            CurrentSpan = new TimeSpan(0, 0, 0);
-            TimesStopped = 0;
-            hasStopWatchStarted = false;
+            _currentSpan = new TimeSpan(0, 0, 0);
+            _timesStopped = 0;
+            _hasStopWatchStarted = false;
         }
     }
 }
