@@ -57,6 +57,11 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Interfaces](#interfaces)
 - [Attributes](#attributes)
 - [Generics](#generics)
+- [Delegates](#delegates)
+- [Lambda expressions](#lambda-expressions)
+- [Events](#events)
+- [Extension methods](#extension-methods)
+- [LINQ](#LINQ)
 - [Unit testing](#unit-testing)
     - [Unit Test Project](#unit-test-project)
 
@@ -1336,6 +1341,7 @@ Like Python, we can give arguments of a method default values to make them optio
 The following method summarizes a long text:
 
 ```cs
+...
 public static string Summarize(string text, int length = 20)
 {
     string[] words = text.Split(' ');
@@ -1350,6 +1356,7 @@ public static string Summarize(string text, int length = 20)
     }
     return summary.Trim() + "...";
 }
+...
 ```
 
 We can see here that `length` already has a pre-defined value. Thus, when we call this method, we don't have to pass in a length if we want to use the default as 20, we can just pass the text.
@@ -3299,7 +3306,1081 @@ In this example, we wouldn't be able to call `DoSomething()` if our generic type
 
 ## Delegates
 
+A delegate is an object that knows how to call a method, or a group of methods. It's a reference to a function.
 
+Why do we need delegates calling methods for us? For designing extensible and flexible applications. For example, frameworks.
+
+In the following example of a photography processor framework:
+
+`Photo.cs`:
+
+```cs
+namespace Delegates
+{
+    public class Photo
+    {
+        public static Photo Load(string path)
+        {
+            return new Photo();
+        }
+
+        public void Save()
+        {
+        }
+    }
+}
+```
+
+`PhotoProcessor.cs`:
+
+```cs
+namespace Delegates
+{
+    public class PhotoProcessor
+    {
+        public void Process(string path)
+        {
+            Photo photo = Photo.Load(path);
+
+            var filters = new PhotoFilters();
+            filters.ApplyBrightness(photo);
+            filters.ApplyContrast(photo);
+            filters.Resize(photo);
+
+            photo.Save();
+        }
+    }
+}
+```
+
+`PhotoFilters.cs`:
+
+```cs
+using System;
+
+namespace Delegates
+{
+    public class PhotoFilters
+    {
+        public void ApplyBrightness(Photo photo)
+        {
+            Console.WriteLine("Apply brightness.");
+        }
+
+        public void ApplyContrast(Photo photo)
+        {
+            Console.WriteLine("Apply contrast.");
+        }
+
+        public void Resize(Photo photo)
+        {
+            Console.WriteLine("Resize photo.");
+        }
+    }
+}
+```
+
+And `Program.cs`, acting like the client of this code:
+
+```cs
+namespace Delegates
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var processor = new PhotoProcessor();
+
+            processor.Process("photo.jpeg");
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+Apply brightness.
+Apply contrast.
+Resize photo.
+```
+
+There is a problem with this code: it's not extensible. If someone else wanted to apply more filters in the processing workflow, they would have to manually create the filter in `PhotoFilters`, apply this filter in `PhotoProcessor`, recompile, and redeploy the code, when they should only be dealing with the `Main()` method.
+
+With delegates, we can make this code extensible: a developer can create a new filter without relying on us. [Interfaces](#interfaces) also solve this problem, with polymorphism. Later we'll discuss when to use delegates or interfaces.
+
+To use delegates, first we need to declare a delegate type in `PhotoProcessor`:
+
+```cs
+namespace Delegates
+{
+    public class PhotoProcessor
+    {
+        public delegate void PhotoFilterHandler(Photo photo);
+        public void Process(string path, PhotoFilterHandler filterHandler)
+        {
+            Photo photo = Photo.Load(path);
+
+            filterHandler(photo);
+
+            photo.Save();
+        }
+    }
+}
+```
+
+We defined the delegate type using the `delegate` keyword, `PhotoFilterHandler`, defined the signature of the methods that will call it as `void`, and specified that a delegate should have a `Photo photo` parameter. So, an instance of the delegate can hold a pointer to a function or a group of functions with the same signature.
+
+Now, `Process` doesn't know what kind of filters will be applied, it's not its responsibility anymore. We specified another argument to it, which is an instance of the delegate, `PhotoFilterHandler filterHandler`. `filterHandler` acts like a function to handle the filter applied to this photo.
+
+It's the responsibility of `Main()` to apply the filters, the client class. There, we assign the delegate to a method within our framework:
+
+```cs
+namespace Delegates
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var processor = new PhotoProcessor();
+            var filters = new PhotoFilters();
+            PhotoProcessor.PhotoFilterHandler filterHandler = filters.ApplyBrightness;
+
+            processor.Process("photo.jpeg", filterHandler);
+        }
+    }
+}
+```
+
+This prints:
+
+```
+Apply brightness.
+```
+
+We instantiated `PhotoFilters`, to have access to its methods, then, we created the delegate function `filterHandler`, which is of type `PhotoProcessor.PhotoFilterHandler` (the delegate), and we passed this function as an argument to `Process`.
+
+Now, every time we want to apply a new filter to the processor, we just have to assign another method from `filters` to `filterHandler`.
+
+To apply more filters to the photo, we can use the overloaded operator `+=`, since delegates can also point to a group of functions:
+
+```cs
+namespace Delegates
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var processor = new PhotoProcessor();
+            var filters = new PhotoFilters();
+            PhotoProcessor.PhotoFilterHandler filterHandler = filters.ApplyBrightness;
+            filterHandler += filters.ApplyContrast;
+            filterHandler += filters.Resize;
+
+            processor.Process("photo.jpeg", filterHandler);
+        }
+    }
+}
+```
+
+Now, this prints:
+
+```
+Apply brightness.
+Apply contrast.
+Resize photo.
+```
+
+To create more filters, we can simply create more methods with the same signature (return type and arguments) of our delegate. They can be created anywhere, even in the `Program` class:
+
+```cs
+namespace Delegates
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var processor = new PhotoProcessor();
+            var filters = new PhotoFilters();
+            PhotoProcessor.PhotoFilterHandler filterHandler = filters.ApplyBrightness;
+            filterHandler += filters.ApplyContrast;
+            filterHandler += filters.Resize;
+            filterHandler += IncreaseRedness;
+
+            processor.Process("photo.jpeg", filterHandler);
+        }
+
+        public static void IncreaseRedness(Photo photo)
+        {
+            Console.WriteLine("Redness increased.");
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+Apply brightness.
+Apply contrast.
+Resize photo.
+Redness increased.
+```
+
+In conclusion, we added a new filter without having to touch any classes within the framework.
+
+**What happens under the hood?** Every delegate that's created is essentially a class, derived from `System.Multicast.Delegate`, which is derived from `System.Delegate`, which has two properties, a method (the method that the delegate is pointing to) and a target (the class the holds that method).
+
+`System.Multicast.Delegate` allows us to have pointers to multiple functions. When we use this functionality, the delegate will have a field called `_invocationList`, which holds the group of methods.
+
+When we point to only one method, it's using `System.Delegate`.
+
+In the example above, our delegate is of type `System.Multicast.Delegate`, since it's pointing to a group of methods.
+
+In .NET, we have to generic delegates: `System.Action<T>` (which also has its non-generic form, `System.Action`), that has 16 overloads, making it possible to point up to 16 methods, and `System.Func<T>`, which also has overloads that allows us to point up to many functions.
+
+The difference between these two is that `Func<T>` points to a method that returns a value, whereas `Action` points to void methods.
+
+`Func<T>` normally takes two or more data type parameters: the first one(s) is the data type(s) of the method's parameter(s), and the second (or method's number of arguments plus one) is the return type of the method, making it `Func<T, U, V, ...>`.
+
+Since these two already exist, we don't have to go on and create multiple delegates ourselves.
+
+Changing `PhotoProcessor` to use `System.Action<T>`:
+
+```cs
+using System;
+
+namespace Delegates
+{
+    public class PhotoProcessor
+    {
+        public void Process(string path, Action<Photo> filterHandler)
+        {
+            Photo photo = Photo.Load(path);
+
+            filterHandler(photo);
+
+            photo.Save();
+        }
+    }
+}
+```
+
+Now, we can pass to `Process` any delegates of type photo that return void, which is the same signature that we had for our methods in `PhotoFilters` and in `Program`, instead of `PhotoProcessor.PhotoFilterHandler`, we use `Action<Photo>` to instantiate the delegate:
+
+```cs
+using System;
+
+namespace Delegates
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var processor = new PhotoProcessor();
+            var filters = new PhotoFilters();
+            Action<Photo> filterHandler = filters.ApplyBrightness;
+            filterHandler += filters.ApplyContrast;
+            filterHandler += filters.Resize;
+            filterHandler += IncreaseRedness;
+
+            processor.Process("photo.jpeg", filterHandler);
+        }
+
+        public static void IncreaseRedness(Photo photo)
+        {
+            Console.WriteLine("Redness increased.");
+        }
+    }
+}
+```
+
+Another use case of delegate functions is for **predicates**, which is a delegate to a function that returns a boolean. For example, in `System.Generics`, we have the `FindAll()` method. This methods returns all the matches that satisfy the predicate's condition.
+
+For example, imagine that we have a list of `Book`s
+
+```cs
+...
+public bool IsCheaperThan10Dollars(Book book)
+{
+    return book.Price < 10;
+}
+...
+```
+
+This method can be used as a predicate to `FindAll`:
+
+```cs
+...
+books.FindAll(IsCheaperThan10Dollars);
+...
+```
+
+This will return all book within this list that have their prices smaller than 10 dollars.
+
+Notice that we didn't have to pass in any parameters to the predicate, because they **have to** be of type `Book`.
+
+To wrap it up, **a delegate is an object that knows how to call a method, or a group of methods. They are used to achieve extensibility and flexibility within a framework**.
+
+How do we decide when to use interfaces or delegates? In part, it comes down to personal preference, but according to the [official documentation](https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2010/ms173173(v=vs.100)), we use delegates when an [eventing](#events) design pattern is used, or when the caller doesn't need to access other properties or methods on the object implementing the method.
+
+## Lambda expressions
+
+A lambda expression is an **anonymous method**: it has no access modifier, no name, and no return statement.
+
+Why are they used? For convenience. We can write less code and achieve the same thing. This can aso make our code more readable.
+
+For example, typically this is how we'd write a method that takes a number and returns the square of it:
+
+```cs
+using System;
+
+namespace LambdaExpressions
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Console.WriteLine(Square(5)); // Prints 25.
+        }
+        public static int Square(int number)
+        {
+            return number * number;
+        }
+    }
+}
+```
+
+Writing the same code with lambda expressions:
+
+```cs
+namespace LambdaExpressions
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+
+            // args => expression:
+            number => number * number;
+        }
+    }
+}
+```
+
+Here we have the arguments, the lambda operator (`=>`), and some expression. We read this as **args goes to expression**. We didn't have to specify a return type, an access modifier, or a return statement; the compiler does that for us.
+
+In this example, we read: **number goes to number times number**.
+
+What do we do with this expression? We assign it to a [delegate](#delegates). In this case, we need to use `Func<T>`, since the lambda expression returns an integer:
+
+```cs
+using System;
+
+namespace LambdaExpressions
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Func<int, int> square = number => number * number;
+
+            Console.WriteLine(square(5)); // Which prints 25.
+        }
+    }
+}
+```
+
+What is happening here: We instantiated the delegate `Func<int, int>`, which points to functions that have an integer parameter and return an integer and, instead of creating a method for it, like we did with `Square()`, we assign it to a lambda expression, that takes a number and goes to the number times itself.
+
+If we don't need any arguments in a lambda expression, we can write it like so `() => ...`. If we have more than one parameters, we have to enclose them in parenthesis: `(x, y, z) => ...`.
+
+In terms of scope, the lambda expression has access to any parameters passed to it and within the scope that it finds itself. For example:
+
+```cs
+using System;
+
+namespace LambdaExpressions
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            const int factor = 5;
+            Func<int, int> multiplier = n => n * factor;
+            
+            Console.WriteLine(multiplier(10)); // Prints out 50.
+        }
+    }
+}
+```
+
+Some common use cases of lambda expressions are for predicates. For example, instead of passing a delegate function to `FindAll()` in `System.Generics`, we can just call a lambda expression there. This situation:
+
+```cs
+...
+public bool IsCheaperThan10Dollars(Book book)
+{
+    return book.Price < 10;
+}
+...
+```
+
+```cs
+...
+books.FindAll(IsCheaperThan10Dollars);
+...
+```
+
+Becomes this one:
+
+```cs
+books.FindAll(book => book.Price < 10);
+```
+
+Removing the necessity of having to create `IsCheaperThan10Dollars()`.
+
+In C#, it's common to use a single letter to denote the argument of a lambda expression. In the example above, since it's obvious that what's inside `FindAll()` has to return a `Book` object, we can rewrite the argument as `b`:
+
+```cs
+books.FindAll(b => b.Price < 10);
+```
+
+## Events
+
+Events are a mechanism for communication between objects. They are used in building loosely coupled applications, and they help extend applications.
+
+When something happens inside an object, it can notify other objects about that.
+
+The objects that send an information **publish** message, thus it's called a **publisher**, which will be receive by the objects subscribed to the event publisher, or the **subscribers**.
+
+The publisher class knows absolute nothing about its subscribers, making their relationship loosely coupled.
+
+For a `VideoEncoder` class example, can publish events to any classes that are subscribed to it, such as a `MailService`, or a `MessageService`. If we wanted to create more classes to deal with messaging (extend the application), `VideoEncoder` would not be affected in any way.
+
+To implement this, we could create a `OnVideoEncoded()` method that deals with notify any subscribers. This method is a signature, or a contract, that both publisher and its subscribers have in common. This methods are often called **event handlers**.
+
+Example:
+
+```cs
+...
+public void OnVideoEncoded(object source, EventArgs e)
+{
+}
+```
+
+This method is called by the publisher when the event is raised. This means that this method is also present in its subscribers, in this, `MailService` and `MessageService`.
+
+How do we tell the `VideoEncoder` what method to call? That where [delegates](#delegates) come in, since they are this agreement between the publisher and subscriber.
+
+We can have a delegate that determines when a video is encoded.
+
+Example:
+
+`Video.cs`:
+
+```cs
+namespace Events
+{
+    public class Video
+    {
+        public string Title { get; set; }
+    }
+}
+```
+
+`VideoEncoder.cs`:
+
+```cs
+using System;
+using System.Threading;
+
+namespace Events
+{
+    public class VideoEncoder
+    {
+
+        // 1 - Define a delegate:
+        public delegate void VideoEncodedEventHandler(object source, EventArgs args);
+
+        // 2 - Define an event based on that delegate:
+        public event VideoEncodedEventHandler VideoEncoded;
+
+        // 3 - Raise, or publish, the event:
+        protected virtual void OnVideoEncoded()
+        {
+            if (VideoEncoded != null)
+            {
+                VideoEncoded(this, EventArgs.Empty);
+            }
+        }
+
+        public void Encode(Video video)
+        {
+            Console.WriteLine("Encoding video...");
+            Thread.Sleep(3000); // Simulates the encoding process.
+            Console.WriteLine("Done.");
+            OnVideoEncoded();
+        }
+    }
+}
+```
+
+`Program.cs`:
+
+```cs
+namespace Events
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var video = new Video() { Title = "Video 1" };
+            var videoEncoder = new VideoEncoder();
+
+            videoEncoder.Encode(video);
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+Encoding video...
+Done.
+```
+
+With a 3 seconds delay between the messages.
+
+So, there are three steps to create events:
+
+In the first one, we declared a delegate called `VideoEncodedEventHandler()` to deal with the publishing. It's common practice in C# to declare a publisher with arguments as `object source` and `EventArgs args` or `e`, which is basically any additional data that we want to send with the event. Another convention is to name the delegate as the name of the event (`VideoEncoded`) appended with `EventHandler`.
+
+`EventArgs` is a class within `System`. Here's it's [official documentation](https://docs.microsoft.com/en-us/dotnet/api/system.eventargs?view=net-5.0).
+
+In the second one, when we declare the event, we used the keyword `event` and named it in the past sentence, because it will be called when the video has just finished encoding.
+
+In the third step, we created a method to publish the event. It's a convention to have it as protected and void. In terms of naming convention, they should start with the word `On` and be appended with name of the event. We used the `virtual` keyword here because `MailService` and `MessageService` will override it.
+
+In the publisher method, we start by checking if there are any subscribers (`VideoEncoded != null`). If there are, we treat the event `VideoEncoded` as a method with the signature defined by the delegate, so, `VideoEncoded(object source, EventArgs args)`.
+
+In our case, what is the source of the event (who's publishing it)? It's the instantiated object itself, thus, we use `this` for the source. Since we don't want to send any additional data with our event, we'll just use the static property `Empty` within `System.EventArgs`. This property returns an instance of `EventArgs`, which is empty.
+
+Now, in the `Encode()` method, we can call `OnVideoEncoded()` when the encoding is done.
+
+Let's crate the subscribers `MailService` and `MessageService`:
+
+`MailService.cs`:
+
+```cs
+namespace Events
+{
+    public class MailService
+    {
+        public void OnVideoEncoded(object source, EventArgs e)
+        {
+            Console.WriteLine("MailService: Sending an e-mail...");
+        }
+    }
+}
+```
+
+And `MessageService.cs`:
+
+```cs
+namespace Events
+{
+    public class MessageService
+    {
+        public void OnVideoEncoded(object source, EventArgs e)
+        {
+            Console.WriteLine("MessageService: Sending a message...");
+        }
+    }
+}
+```
+
+We just had to override `OnVideoEncoded()`. These classes don't even have to inherit `VideoEncoder.cs`.
+
+Now, in `Main()` we create the subscribers:
+
+```cs
+namespace Events
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var video = new Video() { Title = "Video 1" };
+            var videoEncoder = new VideoEncoder(); // Publisher.
+            var mailService = new MailService(); // Subscriber.
+            var messageService = new MessageService(); // Subscriber.
+
+            // Creating subscriptions:
+            videoEncoder.VideoEncoded() += mailService.OnVideoEncoded;
+            videoEncoder.VideoEncoded() += messageService.OnVideoEncoded;
+
+            videoEncoder.Encode(video);
+        }
+    }
+}
+```
+
+Which prints:
+
+```
+Encoding Video...
+Done.
+MailService: Sending an e-mail...
+MailService: Sending a message...
+```
+
+With a delay of 3 seconds between `Encoding Video...` and `Done.`.
+
+When creating the subscriber, we used the `+=` operator to determine the handler on both `MailService` and `TextService`.
+
+Note that we're not making any calls to the methods (hence the lack of parenthesis when calling `mailService.OnVideoEncoded;` and `messageService.OnVideoEncoded`). We're just **referencing** them.
+
+So, `videoEncoder.VideoEncoded` is just a list of subscribers. Thus, when `videoEncoder.Encode(video)` calls `OnVideoEncoded()`, `VideoEncoded` will, in fact, not be null, and will publish the event to the subscriber.
+
+Now, we can create as many messaging classes as we want to, without changing the publisher.
+
+In this next step, we'll be sending additional data to the subscribers with the event. To do that, we need to create a custom class that inherits from `EventArgs`:
+
+```cs
+namespace Events
+{
+    public class VideoEventArgs : EventArgs
+    {
+        public Video Video { get; set; }
+    }
+}
+```
+
+Now, in our delegate in `VideoEncoder.cs`, we change the `EventArgs args` to `VideoEventArgs`. Since `OnVideoEncoded` expects the signature that comes from the delegate, we also change the event that it sends to `VideoEventArgs` and call this class in `OnVideoEncoded()`.
+
+Notice that now we have to pass a `Video video` object to the publisher method, so that we can assign the property `VideoEventArgs.Video`. This property will be sent to the subscribers as well.
+
+```cs
+using System;
+using System.Threading;
+
+namespace Events
+{
+    public class VideoEncoder
+    {
+
+        public delegate void VideoEncodedEventHandler(object source, VideoEventArgs args); // Changed here.
+
+        public event VideoEncodedEventHandler VideoEncoded;
+
+        protected virtual void OnVideoEncoded(Vide video) //Changed here.
+        {
+            if (VideoEncoded != null)
+            {
+                VideoEncoded(this, new VideoEventArgs() { Video = video }); // Changed here.
+            }
+        }
+
+        public void Encode(Video video)
+        {
+            Console.WriteLine("Encoding video...");
+            Thread.Sleep(3000);
+            Console.WriteLine("Done.");
+            OnVideoEncoded(video); // Changed here.
+        }
+    }
+}
+```
+
+Now, in `MailService` and in `TextService`, we need to change `OnVideoEncoded()` to comply with their virtual method:
+
+`MailService.cs`:
+
+```cs
+namespace Events
+{
+    public class MailService
+    {
+        public void OnVideoEncoded(object source, VideoEventArgs e)
+        {
+            Console.WriteLine($"MailService: The video \"{e.Video.Title}\" is ready. Sending an e-mail...");
+        }
+    }
+}
+```
+
+And `MessageService.cs`:
+
+```cs
+namespace Events
+{
+    public class MessageService
+    {
+        public void OnVideoEncoded(object source, VideoEventArgs e)
+        {
+            Console.WriteLine($"MessageService: The video \"{e.Video.Title}\" is ready. Sending a message...");
+        }
+    }
+}
+```
+
+When we run `Main()`, we get:
+
+```
+Encoding Video...
+Done.
+MailService: The video "Video 1" is ready. Sending an e-mail...
+MessageService: The video "Video 1" is ready. Sending a message...
+```
+
+With a 3 seconds delay between `Encoding video...` and `Done.`.
+
+In more recent versions of .NET, we can write this event system in a simpler way.
+
+We don't actually need to create a new delegate every time we need to create a new event. Just as we have with `Func<>` and `Action`, we have `System.EventHandler` (and its generic form `System.EventHandler<TEventArgs>`):
+
+```cs
+using System;
+using System.Threading;
+
+namespace Events
+{
+    public class VideoEncoder
+    {
+
+        // We don't have to create a delegate explicitly, we can just use this class:
+        public event EventHandler<VideoEventArgs> VideoEncoded;
+
+        protected virtual void OnVideoEncoded(Vide video)
+        {
+            if (VideoEncoded != null)
+            {
+                VideoEncoded(this, new VideoEventArgs() { Video = video });
+            }
+        }
+
+        public void Encode(Video video)
+        {
+            Console.WriteLine("Encoding video...");
+            Thread.Sleep(3000);
+            Console.WriteLine("Done.");
+            OnVideoEncoded(video);
+        }
+    }
+}
+```
+
+And to send an event without additional data, we use the normal form of `EventHandler`, not its generic:
+
+```cs
+using System;
+using System.Threading;
+
+namespace Events
+{
+    public class VideoEncoder
+    {
+
+        // We don't have to create a delegate explicitly, we can just use this class:
+        public event EventHandler VideoEncoded;
+
+        protected virtual void OnVideoEncoded()
+        {
+            if (VideoEncoded != null)
+            {
+                VideoEncoded(this, EventArgs.Empty);
+            }
+        }
+
+        public void Encode(Video video)
+        {
+            Console.WriteLine("Encoding video...");
+            Thread.Sleep(3000);
+            Console.WriteLine("Done.");
+            OnVideoEncoded();
+        }
+    }
+}
+```
+
+We don't really need to create our own delegates, we can just use this class.
+
+## Extension methods
+
+They allow us to add methods to an existing class without changing its source code or creating a new class that inherits from it.
+
+Using the [summarize a post](#default-or-optional-arguments) example:
+
+```cs
+...
+public static string Summarize(string text, int length = 20)
+{
+    string[] words = text.Split(' ');
+    var summary = "";
+    foreach (var word in words)
+    {
+        if (summary.Length >= length)
+        {
+            break;
+        }
+        summary += word + " ";
+    }
+    return summary.Trim() + "...";
+}
+...
+```
+
+We could add this method to the `String` class, but since `String` is [sealed](#sealed-classes-and-members), we cannot make any classes inherit from it.
+
+The solution to this is to use **extension methods**. Let's add this summarize method to `String`.
+
+First, we create a static class (it's a convention). Its name should be `String` plus `Extensions` (also a convention).
+
+Secondly, we write the extension methods. They are always public static as well. The first argument of this method should **always** be `this <class-we-are-extending> <name>`, it's a convention.
+
+```cs
+using System;
+
+namespace ExtensionMethods
+{
+    public static class StringExtensions
+    {
+        public static string Summarize(this String str, int length = 20)
+        {
+            string[] words = str.Split(' ');
+            var summary = "";
+            foreach (var word in words)
+            {
+                if (summary.Length >= length)
+                {
+                    break;
+                }
+                summary += word + " ";
+            }
+            return summary.Trim() + "...";
+        }
+    }
+}
+```
+
+We didn't have to change anything in the source code of the `String` class.
+
+Now, in `Main()`:
+
+```cs
+using System;
+
+namespace ExtensionMethods
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            string post = "This is a supposed to be a very long blog post blah blah blah...";
+            Console.WriteLine(post.Shorten(5)); // This prints "This is a supposed to be..."
+        }
+    }
+}
+```
+
+Notice that `this String str` here represents `post`. That's why we can call `Shorten()` in `post`.
+
+Another key thing is that **the extension class should always be on the same scope of the object calling its methods**. If we were to change the namespace `ExtensionMethods` one of the classes `Program` or `StringExtensions` to another name, the extension wouldn't work anymore, unless we import the namespace with `using`, which is not good practice.
+
+Thus, it's common practice to define the extension class in the same namespace of the class that we're extending from. In this case, `String` is defined in `System`:
+
+```cs
+namespace System
+{
+    public static class StringExtensions
+    {
+        public static string Summarize(this String str, int length = 20)
+        {
+            string[] words = str.Split(' ');
+            var summary = "";
+            foreach (var word in words)
+            {
+                if (summary.Length >= length)
+                {
+                    break;
+                }
+                summary += word + " ";
+            }
+            return summary.Trim() + "...";
+        }
+    }
+}
+```
+
+Often we'll be using extension methods, instead of creating them.
+
+## LINQ
+
+It stands for **Language Integrated Query**, and it gives us the ability to query objects natively.
+
+We can query objects in memory, like collections (LINQ to objects), databases (LINQ to entities), XML (LINQ to XML), and AD<span>O</span>.NET Datasets (LINQ to datasets).
+
+Example that gets books that are less than 10 dollars:
+
+`Book.cs`:
+
+```cs
+namespace StudyingLinq
+{
+    public class Book
+    {
+        public string Title { get; set; }
+        public float Price {get; set; }
+    }
+}
+```
+
+`BookRepository.cs`:
+
+```cs
+using System.Collections.Generic;
+
+namespace StudyingLinq
+{
+    public class BookRepository
+    {
+        public IEnumerable<Book> GetBooks()
+        {
+            return new List<Book>
+            {
+                new Book() { Title = "Book 1", Price = 5 },
+                new Book() { Title = "Book 2", Price = 9.99f },
+                new Book() { Title = "Book 3", Price = 12 },
+                new Book() { Title = "Book 4", Price = 7 },
+                new Book() { Title = "Book 5", Price = 9 }
+            };
+        }
+    }
+}
+```
+
+And `Program.cs`:
+
+```cs
+using System;
+using System.Collections.Generic;
+
+namespace StudyingLinq
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<Book> books = new BookRepository().GetBooks();
+            var cheapBooks = new List<Book>();
+            foreach (var book in books)
+            {
+                if (book.Price < 10)
+                {
+                    cheapBooks.Add(book);
+                }
+            }
+
+            foreach (var cheapBook in cheapBooks)
+            {
+                Console.WriteLine($"{book.Title}: {book.Price}"); // Prints "Book 1, 2, 4, and 5".
+            }
+        }
+    }
+}
+```
+
+Using LINQ, we can shorten this to:
+
+```cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace StudyingLinq
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<Book> books = new BookRepository().GetBooks();
+            List<Book> cheapBooks = books.Where(b => b.Price < 10);
+            foreach (var cheapBook in cheapBooks)
+            {
+                Console.WriteLine($"{book.Title}: {book.Price}"); // Prints "Book 1, 2, 4, and 5".
+            }
+        }
+    }
+}
+```
+
+The `Where()` method is defined inside `System.Linq`, and it's an [extension method](#extension-methods) for `System.Collections.Generic`. It accepts a predicate filter, that we define as a [lambda expression](#lambda-expressions), which returns a `Book`, and returns a `List<Book>`.
+
+LINQ also has `OrderBy()` and `OrderByDescending()` methods, which orders the books by a specific attribute, like `b => b.Title`, or `b => b.Price`. It also has a `Select()` method, which is useful for projections, or transformations.
+
+Since these LINQ methods return a `List<Book>`, we can chain them:
+
+```cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace StudyingLinq
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<Book> books = new BookRepository().GetBooks();
+            var cheapBooks = books.Where(b => b.Price < 10)
+                                  .OrderByDescending(b => b.Title)
+                                  .Select(b => b.Title);
+            foreach (var cheapBook in cheapBooks)
+            {
+                Console.WriteLine(book); // Prints "Book 5, 4, 2, and 1".
+            }
+        }
+    }
+}
+```
+
+Notice that `Where()` and `OrderByDescending()` return a list of `<Book>`, but `Select()` returns a list of `b.Title`, which is a string. Thus, `cheapBooks` is an `IEnumerable<string>`.
+
+There is a syntax used to write these methods, which is called **LINQ Query Operators**. The same methods wrote in this syntax:
+
+```cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace StudyingLinq
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<Book> books = new BookRepository().GetBooks();
+            var cheapBooks = from b in books
+                             where b.Price < 10
+                             orderby b.Title descending
+                             select b.Title;
+
+            foreach (var cheapBook in cheapBooks)
+            {
+                Console.WriteLine(book); // Prints "Book 5, 4, 2, and 1".
+            }
+        }
+    }
+}
+```
+
+These operators always start with `from` and always finish with `select`. If we wanted to return a list of `Book`s instead of strings, we could've just use `select b` instead.
+
+Note that there are not keywords for every extension method from LINQ. Thus, if the operation is complex, the other syntax is preferred.
+
+Some other extension methods that are very useful are:
 
 ## Unit testing
 
