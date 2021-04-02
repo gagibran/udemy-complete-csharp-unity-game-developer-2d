@@ -50,11 +50,13 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Inheritance](#inheritance)
 - [Composition](#composition)
 - [Upcasting and downcasting](#upcasting-and-downcasting)
+- [Boxing and unboxing](#boxing-and-unboxing)
 - [Method overriding](#method-overriding)
 - [Abstract classes and members](#abstract-classes-and-members)
 - [Sealed classes and members](#sealed-classes-and-members)
 - [Interfaces](#interfaces)
 - [Attributes](#attributes)
+- [Generics](#generics)
 - [Unit testing](#unit-testing)
     - [Unit Test Project](#unit-test-project)
 
@@ -3099,6 +3101,205 @@ Attributes are just tags, or decorators. They are metadata about our classes and
 With them, another application or assembly can read this metadata and do something about it.
 
 One example is the `[SerializeField]` attribute [used in Unity](https://github.com/gagibran/learning-game-dev/tree/dev/unity-2d#scriptable-objects).
+
+## Generics
+
+Since this was poorly covered in the Java course, I added this section.
+
+Just like in Java, we use a generic class to solve the problem where the data type is a variable. We could create a generic class and use `object` as the data type, since all classes inherit from it, but the performance of its methods would be penalized, because of [boxing and unboxing](#boxing-and-unboxing).
+
+With generics, we create a class once and use it multiple times.
+
+Just like Java, we use `T` as the generic type at declaration. To improve readability, when we have more than one generic type a declaration, we can name them properly, instead of just using capital letters, like `TKey`, `TValue` and so on.
+
+Example of a generic class:
+
+```cs
+using System;
+
+namespace Generics
+{
+    public class GenericList<T>
+    {
+        public void Add(T value)
+        {
+            // Do something.
+        }
+
+        public T this [int index]
+        {
+            // Indexer that does something.
+        }
+    }
+
+    public class Book
+    {
+        public string Isbn { get; set; }
+        public string Title { get; set; }
+    }
+}
+```
+
+And in the `Main()` method:
+
+```cs
+using System;
+
+namespace Generics
+{
+    class Program
+    {
+        public void Main(string[] args)
+        {
+            var book = new Book { Isbn = "1111", Title = "C# Advanced" }
+
+            var numbers = new GenericList<int>();
+            numbers.Add(10);
+            var books = new GenericList<Book>();
+            books.Add(book);
+        }
+    }
+}
+```
+
+In practical terms, we will be **using** generic classes instead of creating them, since generic lists normally implement data structure, such as linked lists, array lists and so on.
+
+In .NET, we have the `System.Collections.Generic` namespace, with a bunch of generic collections, such as lists, dictionaries, and hashed maps.
+
+A dictionary is a data structure that uses hashed tables to store keys and values, just like a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries).
+
+
+Like in Java, we can also limit the data types passed as parameters to a generic class:
+
+```cs
+using System;
+
+namespace Generics
+{
+    public class Utilities
+    {
+        public T Max<T>(T a, T b) where T : IComparable
+        {
+            return a > b ? a : b;
+        }
+    }
+}
+```
+
+Note here that we actually don't need to make the whole class generic, we can just make a method generic.
+
+In Java, we [use the `extends` keyword to do bounding](https://github.com/gagibran/learning-java#generic-class). Here, just like with [inheritance](#inheritance), we use the `where` keyword and a colon (`:`) to limit `T`'s types. And just like in Java, we can bound one class and multiple interfaces to a type, but here, we separate them with a comma.
+
+We can also constrain to a **value type**, by limiting it to a [struct](#structs).
+
+In this example, since value types cannot be null, we're creating a generic class **that only accepts value types** (hence the `where T : struct`) and giving them the ability to be null:
+
+```cs
+using System;
+
+namespace Generics
+{
+    public class Nullable<T> where T : struct
+    {
+        private object _value;
+
+        // Default constructor, in case "_value" isn't set.
+        public Nullable()
+        {
+        }
+
+        public Nullable(T value)
+        {
+            _value = value; // Converting a value type to a reference type, so that it can be nullable.
+        }
+
+        public bool HasValue
+        {
+            get { return _value != null; } // Returns true if the value passed in the constructor is not null.
+        }
+
+        // If the value passed in the constructor is not null, we return its nullable type:
+        public T GetValueOrDefault()
+        {
+            if (HasValue)
+            {
+                return (T)_value; // Since "_value" is an object, we're casting it back to the generic type.
+            }
+            return default(T);
+        }
+    }
+}
+```
+
+Here we're using the `default()` keyword, which returns the default value of that data type, when it hasn't been initialized. For example, the default of a boolean is `false` and the default of an integer is `0`.
+
+In `Main()`:
+
+```cs
+using System;
+
+namespace Generics
+{
+    class Program
+    {
+        public void Main(string[] args)
+        {
+            var number = new Nullable<int>(5);
+            Console.WriteLine($"Does it have value? {number.HasValue}."); // In this case, it's true.
+            Console.WriteLine($"The value: {number.GetValueOrDefault()}."); // In this case, it's 5.
+
+            var anotherNumber = new Nullable<int>(); // Here, no value has been passed, but the data type is an integer.
+            Console.WriteLine($"Does it have value? {number.HasValue}."); // In this case, it's false.
+            Console.WriteLine($"The value: {number.GetValueOrDefault()}."); // In this case, it's 0.
+        }
+    }
+}
+```
+
+This example seems rather odd, but if we try to write a program like:
+
+```cs
+namespace Generics
+{
+    class Program
+    {
+        public void Main(string[] args)
+        {
+            var number;
+            Console.WriteLine(number);
+        }
+    }
+}
+```
+
+It wouldn't compile, stating that we're making `use of unassigned local variable`. With this `Nullable` class, we're able to make it default to it's default value when a value type is not initialized.
+
+This class is actually a structure, part of the .NET framework, in `System.Nullable<T>`.
+
+Moving on, we can also make a generic type be bounded to a **reference type**, using `class` instead of `struct`.
+
+Finally, it's also possible to constrain a generic type to a **default constructor**, using `new()` in its declaration:
+
+```cs
+using System;
+
+namespace Generics
+{
+    public class Utilities<T> where T : IComparable, new()
+    {
+        public void DoSomething(T value)
+        {
+            var obj = new T();
+        }
+    }
+}
+```
+
+In this example, we wouldn't be able to call `DoSomething()` if our generic type was bounded only to `IComparable`, because interfaces don't have default constructors. To solve this problem, we bound it to an anonymous constructor as well using the `new()` keyword. Thus, we can make it `T` a class with a constructor right now.
+
+## Delegates
+
+
 
 ## Unit testing
 
