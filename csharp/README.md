@@ -13,7 +13,7 @@ The courses are:
 1. [C# Basics for Beginners: Learn C# Fundamentals by Coding](https://www.udemy.com/course/csharp-tutorial-for-beginners/);
 2. [C# Intermediate: Classes, Interfaces and OOP](https://www.udemy.com/course/csharp-intermediate-classes-interfaces-and-oop/);
 3. [C# Advanced Topics: Prepare for Technical Interviews](https://www.udemy.com/course/csharp-advanced/);
-4. [Unit Testing for C# Developers](https://www.udemy.com/course/unit-testing-csharp/)
+4. [Unit Testing for C# Developers](https://www.udemy.com/course/unit-testing-csharp/).
 
 I will also include some exercises that I see fit from these courses. All of them made using .NET Core 5.
 
