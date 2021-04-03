@@ -62,6 +62,10 @@ I will also include some exercises that I see fit from these courses. All of the
 - [Events](#events)
 - [Extension methods](#extension-methods)
 - [LINQ](#LINQ)
+- [Nullable types](#nullable-types)
+- [Dynamic](#dynamic)
+- [Exception handling](#exception-handling)
+- [Asynchronous programming](#asynchronous-programming)
 - [Unit testing](#unit-testing)
     - [Unit Test Project](#unit-test-project)
 
@@ -3865,7 +3869,7 @@ In the third step, we created a method to publish the event. It's a convention t
 
 In the publisher method, we start by checking if there are any subscribers (`VideoEncoded != null`). If there are, we treat the event `VideoEncoded` as a method with the signature defined by the delegate, so, `VideoEncoded(object source, EventArgs args)`.
 
-In our case, what is the source of the event (who's publishing it)? It's the instantiated object itself, thus, we use `this` for the source. Since we don't want to send any additional data with our event, we'll just use the static property `Empty` within `System.EventArgs`. This property returns an instance of `EventArgs`, which is empty.
+In our case, what is the source of the event (who's publishing it)? It's the instantiated object itself, thus, we use `this` for the source. Since we don't want to send any additional data with our event, we'll just use the read-only field `Empty` within `System.EventArgs`. This property returns an instance of `EventArgs`, which is empty.
 
 Now, in the `Encode()` method, we can call `OnVideoEncoded()` when the encoding is done.
 
@@ -4381,6 +4385,588 @@ These operators always start with `from` and always finish with `select`. If we 
 Note that there are not keywords for every extension method from LINQ. Thus, if the operation is complex, the other syntax is preferred.
 
 Some other extension methods that are very useful are:
+
+- `Single(b => b.Title == "Book 4")`: Returns only one `Book` object that matches that title, as opposed to `Where()`. If it doesn't exist, throws an `InvalidOperationException` stating that the match was unsuccessful;
+- `SingleOrDefault(b => b.Title == "Book 8")`: If there isn't a match, returns the data type's default value (in this case, null for strings);
+- `First(b => b.Title == "Book 2")`: Returns the first occurrence of the match and throws an `InvalidOperationException` if the match isn't successful. This method can also be used without predicates to return the first item on the list;
+- `FirstOrDefault(b => b.Title == "Book 2")`: Similar to `SingleOrDefault()`, but for `First()`;
+- `Last(b => b.Title == "Book 5")` and `LastOrDefault(b => b.Title == "Book 2")`: Similar to `First()` and `FirstOrDefault()`;
+- `Skip(int i)` and `Take(int j)`: Skips `i` objects on the list and returns a list with the remaining `j`. Used to do pagination;
+- `Max(b => b.Price)`: Returns the price of book that has the maximum price (`12` in this example, for `Book 3`);
+- `Min(b => b.Price)`: Returns the price the book that has the minimum price (`5` in this example, for `Book 1`);
+- `Sum(b => b.Price)`: Returns the sum of the prices (in this case, `42.99`);
+- `Average(b => b.Price)`: Returns the average of the prices (in this case, `8.598`).
+
+## Nullable types
+
+Value types cannot be null, but there are situations where we would like them to be null. For example, when a form for a database, not all of its fields necessarily have to be filled. An example would be when creating an account in a website, we really just need to input username, password, and an e-mail. Normally, it's not required to input birthday, first name, last name etc.
+
+We have actually created a nullable class when studying [generics](#generics), but to create a nullable type, we can use `System.Nullable<T>`:
+
+```cs
+using System;
+
+namespace StudyingNullableTypes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Nullable<DateTime> date = null; // DateTime is a struct, therefore a value type.
+            Nullable<bool> date = null;
+            Nullable<int> date = null;
+        }
+    }
+}
+```
+
+There is a shorter version of nullifying a value type, which is by appending a question mark on it declaration:
+
+```cs
+using System;
+
+namespace StudyingNullableTypes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            DateTime? date = null; // DateTime is a struct, therefore a value type.
+            bool? date = null;
+            int? date = null;
+        }
+    }
+}
+```
+
+Nullable types have some useful properties and methods, like `GetValueOrDefault()`, `HasValue()`, and `Value()`:
+
+```cs
+using System;
+
+namespace StudyingNullableTypes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            DateTime? date = null;
+            Console.WriteLine($"GetValueOrDefault(): {date.GetValueOrDefault()}"); // Prints "1/01/0001 12:00:00 AM", which is the default value of a DateTime.
+            Console.WriteLine($"HasValue(): {date.HasValue()}"); // Prints "False", because "date" hasn't been initialized yet.
+            Console.WriteLine($"Value(): {date.Value()}"); // Throws InvalidOperationException, stating that a nullable object must have a value, because "date" hasn't been initialized yet.
+        }
+    }
+}
+```
+
+`GetValueOrDefault()` is the preferred way of getting a value, since it assigns it to the default and doesn't throw an exception.
+
+Another thing to keep in mind is that we cannot assign a nullable type to a non-nullable one, even if the nullable type is initialized. To make it compile we can call the `GetValueOrDefault()` method:
+
+```cs
+using System;
+
+namespace StudyingNullableTypes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            DateTime? date = new DateTime(2014, 1, 1);
+            // DateTime date2 = date; // This throws an error, because the compiler won't know what to do if "date" is null.
+            DateTime date2 = date.GetValueOrDefault(); // Now if the type is null, it will be assigned to its default value and the compiler knows what to do.
+        }
+    }
+}
+```
+
+Assigning a non-nullable type to a nullable type is possible, naturally.
+
+When dealing with nullables, we can use the **Null Coalescing Operator**. For example:
+
+```cs
+using System;
+
+namespace StudyingNullableTypes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            DateTime? date = null;
+            DateTime date2;
+
+            if (date != null)
+            {
+                date2 = date.Value();
+            }
+            else
+            {
+                date2 = DateTime.Today();
+            }
+        }
+    }
+}
+```
+
+In this example, since `date` is null, `date2` will be converted to `DateTime.Today()`. We can rewrite this code using the Null Coalescing Operator like so:
+
+```cs
+using System;
+
+namespace StudyingNullableTypes
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            DateTime? date = null;
+            DateTime date2 = date.Value() ?? DateTime.Today(); // If "date" has a value, assigns "date2" to it. Otherwise, if "date" is null, assigns "date2" to "DateTime.Today()".
+        }
+    }
+}
+```
+
+This is similar to the ternary operator: `DateTime date2 = (date != null) ? date.Value() : DateTime.Today();`.
+
+## Dynamic
+
+C# is a statically typed language, just like Java, whereas other languages, like Python and JavaScript, are dynamically typed.
+
+The difference is that in statically typed languages, the resolution of types, members, properties, methods, and so on, is done at compile-time. So, if we try to access a method that's not defined in an object, for example, we immediately get a feedback when we compile the application, stating that that method isn't present in that object.
+
+In dynamically typed languages, the resolution of types, members, properties, methods and, so on, is done at runtime. They are a little bit easier and faster to code with, but we have to run more unit tests to make sure that the application will run properly at runtime, since we don't need to compile them.
+
+C# started as a statically typed language, but as of .NET 4, it's been added dynamic capabilities to the language.
+
+For example, let's suppose we're developing Excel, and that it has a method called `Optimize()` that's only present at runtime. If we wrote the code lie so:
+
+```cs
+using System;
+
+namespace StudyingDynamics
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            object excelObject = "whatever";
+            excelObject.Optimize(); // Won't compile.
+        }
+    }
+}
+```
+
+This code wouldn't compile, because this method is not defined at compilation time. We can use the keyword `dynamic` instead:
+
+```cs
+using System;
+
+namespace StudyingDynamics
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            dynamic excelObject = "whatever";
+            excelObject.Optimize(); // Now it compiles.
+        }
+    }
+}
+```
+
+In .NET 4, we have **DLR**, which stand for **Dynamic Language Runtime**. It sits on top of CLR and this is what gives dynamic capabilities to C#.
+
+Another example, which is what we do in Python:
+
+```cs
+using System;
+
+namespace StudyingDynamics
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            dynamic number = 11;
+            number = "11";
+        }
+    }
+}
+```
+
+Here, `number` is being dynamically converted into a `string`. If we inspect `number`, we can see the type changing in real time.
+
+Since this:
+
+```cs
+using System;
+
+namespace StudyingDynamics
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            dynamic number = "11";
+            number++;
+        }
+    }
+}
+```
+
+Breaks the code, but we only see it at runtime, we have to make more unit tests to make sure that we're bug free.
+
+Since the `var` keyword tells the compiler to decide the data type at compile-time, if we add two dynamic numbers, for example, into a third number variable declared with `var`, the compiler will assign `var` to `dynamic`.
+
+## Exception handling
+
+We use a `try` and `catch` block to handle exceptions. An exception is essentially a class.
+
+Example:
+
+```cs
+using System;
+
+namespace ExceptionHandling
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Write a number:");
+            string num = Console.ReadLine();
+
+            try
+            {
+                Convert.ToDouble(num);
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine("An exception has occurred.");
+                Console.WriteLine();
+                Console.WriteLine($"Here it is: {e}");
+                Console.WriteLine();
+                Console.WriteLine("Terminating the program now.");
+            }
+        }
+    }
+}
+```
+
+Here, if we type a string that cannot be converted into a double, we get the following output:
+
+```
+Write a number:
+sdf
+An exception has occurred.
+
+Here it is: System.FormatException: Input string was not in a correct format.
+   at System.Number.ThrowOverflowOrFormatException(ParsingStatus status, TypeCode type)
+   at System.Convert.ToDouble(String value)
+   at ExceptionHandling.Program.Main(String[] args) in C:\Users\gibra\Desktop\Projetos\learning-game-dev\csharp\exercises\ExceptionHandling\Program.cs:line 14
+
+Terminating the program now.
+```
+
+Note that the program exits without errors (`0`), because the exception has been handled.
+
+The `System.Exception` class is the parent of all exceptions in C#, thus, `e` is a polymorphic variable, that suits all exceptions that may happen to our program. This base class has a property called `Message` which just displays the custom message that we gave it, without actually displaying the stack trace (which is also another property called `StackTrace`)
+
+We can have multiple catch blocks to deal with different exceptions. In this block, the exceptions have to be handle from most specific to more generics. For example:
+
+```cs
+using System;
+
+namespace ExceptionHandling
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            int num = Convert.ToInt32(Console.ReadLine());
+            int num2 = Convert.ToInt32(Console.ReadLine());
+
+            try
+            {
+                Console.WriteLine(num / num2);
+            }
+            catch (DivideByZeroException ex)
+            {
+
+                Console.WriteLine("Cannot dive by 0.");
+                Console.WriteLine(ex.Message);
+            }
+            catch (ArithmeticException ex)
+            {
+                Console.WriteLine("An arithmetic exception has occurred.");
+                Console.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An exception has occurred.");
+                Console.WriteLine(ex);
+            }
+        }
+    }
+}
+```
+
+If we input `2` and `0` we get:
+
+```
+2
+0
+Cannot dive by 0.
+Attempted to divide by zero.
+```
+
+Now we didn't get the stack for `System.DivideByZeroException`.
+
+As previously said, some processes in C# are not managed by the CLR, thus they don't have garbage collection. Examples are file handles, database connections, database collections etc. We need to manually clean these resources by implementing `IDisposable`. There, we have to implement a method called `Dispose()`, which:
+
+>Defines a method to release allocated resources.
+
+To call a `Dispose()` method from a class that uses manage resources, we can use the `finally` block, which gets executed no matter if `try` works or not:
+
+```cs
+using System;
+using System.IO;
+
+namespace ExceptionHandling
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            var streamReader = new StreamReader(@"C:\Users\gibra\Desktop\Projetos\learning-game-dev\csharp\exercises\ExceptionHandling\test.txt");
+
+            try
+            {
+                streamReader.ReadToEnd();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An exception has occurred here:");
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                streamReader.Dispose(); // If we don't manage this properly, the file will be opened on the disk, consuming RAM.
+            }
+        }
+    }
+}
+```
+
+A better way to write this code specifically is to use the `using ()` statement, as seen in the example in [interfaces](#interfaces), since `using ()` calls `Dispose()` from internally:
+
+```cs
+using System;
+using System.IO;
+
+namespace ExceptionHandling
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                using (var streamReader = new StreamReader(@"C:\Users\gibra\Desktop\Projetos\learning-game-dev\csharp\exercises\ExceptionHandling\test.txt"))
+                {
+                    Console.WriteLine(streamReader.ReadToEnd());
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An exception has occurred here:");
+                Console.WriteLine(ex);
+            }
+        }
+    }
+}
+```
+
+As a guideline, we should always have a global exception handling block in our applications. In a console application, the entry point of the app is the `Main()` method, so, it should be there.
+
+Moving on, to create a custom exception, we must inherit from `System.Exception`:
+
+```cs
+using System;
+
+namespace ExceptionHandling
+{
+    public class CustomException : Exception
+    {
+        public CustomException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+}
+```
+
+An that's pretty much it. We can call this exception using the `throw` keyword somewhere in our code, passing a message to it, like we'd normally do. We can pass another exception as the second argument, to give the user more information of what's going on.
+
+## Asynchronous programming
+
+In the synchronous program execution model, a program is executed line by line, one at a time. When a function is called, program execution has to wait until the function returns.
+
+In asynchronous programming, when a function is called, the program execution continues to the next line **without** waiting for the function to complete.
+
+We normally provide a callback function to an asynchronous one, so that when the execution is complete, we invoke that function. The program runs more smoothly like that, improving responsiveness on our app.
+
+Some examples are: WIndows Media Player, or our web browser. We can play a media, or access a site while resizing the window, move around etc. Without asynchronous, we would have to freeze the video in order to rise the window, for example.
+
+We use asynchronous programming when we have a blocking operation, such as accessing the web, dealing with files and databases, dealing with images and so on.
+
+How do we do that? Traditionally, we needed to use multi-threading or callback methods. With .NET 4.5 we can use the `async` and `await` keywords, which is called **task based asynchronous model**.
+
+Let's exemplify this with a WPF application:
+
+`MainWindow.xaml`:
+
+```xml
+<Window x:Class="AsyncWpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AsyncWpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Button Content="Button" HorizontalAlignment="Center" Margin="0,175,0,217" Width="236" Click="Button_Click_1"></Button>
+    </Grid>
+</Window>
+```
+
+`MainWindow.xaml.cs`:
+
+```cs
+using System.IO;
+using System.Net;
+using System.Windows;
+
+namespace AsyncWpf
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+
+        }
+
+        public void DownloadHtml(string url)
+        {
+            var webClient = new WebClient();
+            var html = webClient.DownloadString(url); // Gets the HTML from the URL.
+            using (var streamWriter = new StreamWriter(@"C:\Users\gibra\Desktop\Projetos\learning-game-dev\csharp\exercises\AsyncWpf\result.html"))
+            {
+
+                // Saves the HTML of the URL in "result.html":
+                streamWriter.Write(html);
+            }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            DownloadHtml("https://www.google.com/");
+        }
+    }
+}
+```
+
+Here we have a simple Windows Presentation Foundation with a button that, when clicked, downloads the HTML for google.com.
+
+It's quite hard to notice in this application, since it's very basic, but whenever we click the button, we can't actually resize the application window, or even move it, because it has to wait the download to be complete to actually to something. We can solve this issue by making this program asynchronous:
+
+```cs
+...
+public async Task DownloadHtmlAsync(string url)
+{
+    var webClient = new WebClient();
+    var html = await webClient.DownloadStringTaskAsync(url);
+    using (var streamWriter = new StreamWriter(@"C:\Users\gibra\Desktop\Projetos\learning-game-dev\csharp\exercises\AsyncWpf\result.html"))
+    {
+
+        await streamWriter.WriteAsync(html);
+    }
+}
+...
+```
+
+So, we created the asynchronous method using the `async` keyword. All asynchronous method should return `System.Threading.Tasks.Task`, which is a class that encapsulates the state of an asynchronous operation. There is the non-generic form, which is used to return void methods, and the generic version (`Task<T>`), which returns whatever type passed into it.
+
+Since `DownloadHtml()` returns void, we use the non-generic class. By convention, the method name should be appended with `Async`, so, it became `DownloadHtmlAsync()`.
+
+Since .NET 4.5, every blocking method has an asynchronous counterpart. For example, `WebClient.DownloadString()` has a `WebClient.DownloadStringTaskAsync()` method (`WebClient.DownloadStringAsync()` is deprecated). The same goes for `StreamWriter.Write()` with `StreamWriter.WriteAsync()`. That's why we converted these methods.
+
+We, then, decorated them with the `await` keyword, which is used when we call an asynchronous method that returns a `Task` or `Task<T>`. This keyword tells the compiler that this operation is going to be costly, and may take some time to complete. In that case, instead of blocking the thread, the compiler immediately returns the control to the caller of the method `DownloadHtmlAsync()`, which is `Button_Click_1()`, so that it can continue executing other tasks, such as resizing the window, making the UI responsive again.
+
+When the first method marked with `await` is completed, the runtime comes back to `DownloadHtmlAsync()` and executes the rest of the code.
+
+Now, we can change `Button_Click_1()` to asynchronous as well and call `await DownloadHtmlAsync()`:
+
+```cs
+...
+private void Button_Click_1(object sender, RoutedEventArgs e)
+{
+    await DownloadHtmlAsync("https://www.google.com/");
+}
+...
+```
+
+We made our app responsive.
+
+We also use the asynchronous model in web apps, in ASP.NET Core MVC, for example, so that no blocking operations clog up our threads when we have multiple request connections.
+
+Example of `Task<T>` returning a string:
+
+```cs
+...
+public async Task<string> GetHtmlAsync(string url)
+{
+    var webClient = new WebClient();
+    return await webClient.DownloadStringTaskAsync(url);
+}
+...
+```
+
+And `Button_Click_1()`:
+
+```cs
+private async void Button_Click_1(object sender, RoutedEventArgs e)
+{
+    string html = await GetHtmlAsync("https://www.google.com/");
+    MessageBox.Show(html.Substring(0, 10));
+}
+```
+
+Here `html` is of type `string`, not `Task<string>`, because of the `await` keyword, which tells the compiler that the `MessageBox.Show(html.Substring(0, 10));` cannot be executed until the operation is completed.
+
+We can also do a work in between the calling of the asynchronous method and the awaiting of its return:
+
+```cs
+private async void Button_Click_1(object sender, RoutedEventArgs e)
+{
+
+    Task<string> getHtml = GetHtmlAsync("https://www.google.com/");
+    MessageBox.Show("Doing something else.");
+
+    string html = await getHtml;
+    MessageBox.Show(html.Substring(0, 10));
+}
+```
+
+Here `MessageBox.Show("Doing something else.");` will be executed before the awaiting of the asynchronous operation. We only use `await` when the rest of the method cannot be executed until the result is read.
 
 ## Unit testing
 
