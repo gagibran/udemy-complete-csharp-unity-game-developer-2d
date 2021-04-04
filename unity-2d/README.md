@@ -32,6 +32,9 @@ Since Unity projects are too large to be stored in GitHub, I will only keep this
     - [Organizing state files](#organizing-state-files)
     - [TextMesh Pro and polish](#textmesh-pro-and-polish)
     - [Publishing the game with WebGL](#publishing-the-game-with-webgl)
+- [Number wizard UI](#number-wizard-ui)
+    - [UI anchors](#ui-anchors)
+    - [Making buttons](#making-buttons)
 
 ## Hello, world
 
@@ -1122,3 +1125,73 @@ Another better option is launch it at [itch.io](https://itch.io/). It's free and
 ![Gzip Compression](../readme-images/gzip-compression.png)
 
 The game is published on [itch.io]() can be found [here](https://gabrielgibran.itch.io/wizards-of-oslam).
+
+## Number wizard UI
+
+In this section, we'll be adding UI to the [Number Wizard](#number-wizard) game.
+
+It's always important to map the game. The game will be composed of a **start screen**, the **core game screen**, and finally, the **win screen**.
+
+The first thing we need to do is save our scene as `StartMenu` by pressing `Ctrl + Shift + S`. After that, we can delete `Assets/Scenes/SampleScene.asset`, since we don't need this file anymore.
+
+Then, we create an UI `Canvas` in the hierarchy. In its inspector, we change the `UI Scale Mode` from `Constant Pixel Size` to `Scale With Screen Size`, so that it adjusts to various viewport:
+
+![Canvas Scaler](../readme-images/canvas-scaler.png)
+
+After that, we adjust the `Reference Resolution`, still in the `Canvas Scaler`, to 1920x1080, which is the most likely resolution that the game will be played in. Everything else will scale **from** this size.
+
+We, then, add a button to the scene by right-clicking `Canvas -> UI -> Button`:
+
+![Canvas Button](../readme-images/canvas-button.png)
+
+A button will be added to the scene. We can add an image object by clicking on `Canvas -> UI -> Image`. We can add a custom image to the image object by dragging and dropping an actual image, like a PNG file, inside the Assets folder in Unity, going to the image object's inspector, and selecting the source image at the `Image tab`:
+
+![UI Image](../readme-images/ui-image.png)
+
+### UI anchors
+
+An object's anchors are the little arrows that appear somewhere in the screen when we select an object:
+
+![Anchor For Image](../readme-images/anchor-for-image.png)
+
+They dictate the position that the object will stick to. In this case, the image is attached to the top-middle of the screen.
+
+We need to anchor the button and the image to the bottom-right and bottom-left, respectively, in order to make them move proportionally for different window sizes.
+
+By doing that, the ratio between these elements relative to the bottom-right and bottom-left, respectively, for each object, is preserved no matter what.
+
+We do that by going into an element's inspector, in the `Rect Transform` tab and clicking the little square on the left side. We'll open the `Anchor Presets` window:
+
+![Anchor Bottom Left](../readme-images/anchor-bottom-left.png)
+
+In my case, I attached them both to top-center, because I though it looked nicer.
+
+### Making buttons
+
+Firstly, we rename our button to `StartButton`, to make the naming more concise with its action.
+
+Secondly, we can use [TextMesh Pro](#textmesh-pro-and-polish) to further stylize the text on our button. I'm using the [Oz's Wizard](https://www.dafont.com/de/ozswizard.font) font from [Mario Arturo](https://www.dafont.com/de/mario-arturo.d2738).
+
+Next, we'll stylize the button. We can select colors for whn it's selected, highlighted, clicked and so on:
+
+![Button Colors](../readme-images/button-colors.png)
+
+Here's how my starting screen is:
+
+![Number Wizard Starting Screen](../readme-images/number-wizard-starting-screen.png)
+
+In the next step, I created two more scenes, for the game itself and for the winning screen. In order to add a new scene, we click on the three dots on `StartingScene` and select `Add New Scene`:
+
+![Add New Scene](../readme-images/add-new-scene.png)
+
+Or, we can just copy and paste our main scene asset. To load a scene, we just have to double-click on it.
+
+Here are the scenes:
+
+**Core Game Scene**:
+
+![Core Game Scene](../readme-images/core-game-scene.png)
+
+**Win Scene**:
+
+![Win Scene](../readme-images/win-scene.png)
