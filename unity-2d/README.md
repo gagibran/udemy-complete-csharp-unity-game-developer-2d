@@ -1121,4 +1121,4 @@ Another better option is launch it at [itch.io](https://itch.io/). It's free and
 
 ![Gzip Compression](../readme-images/gzip-compression.png)
 
-The game published on [itch.io]() can be found [here](https://gabrielgibran.itch.io/wizards-of-oslam).
+The game is published on [itch.io]() can be found [here](https://gabrielgibran.itch.io/wizards-of-oslam).
