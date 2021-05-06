@@ -383,7 +383,7 @@ int numA = (int) a;
 ```
 Which prints out "97".
 
-This maps to an [ASCII table](https://www.ascii-code.com/)
+This maps to an [ASCII table](https://www.ascii-code.com/).
 
 The reverse also works:
 
